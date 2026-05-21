@@ -65,7 +65,11 @@ func (a *App) RespondReceive(taskID string, accept bool, savePath string) error 
 }
 
 func (a *App) CancelTask(taskID string) error {
-	return a.queue.Cancel(taskID)
+	if err := a.queue.Cancel(taskID); err != nil {
+		return err
+	}
+	a.engine.CancelTask(taskID)
+	return nil
 }
 
 func (a *App) GetTasks() []*model.TransferTask {

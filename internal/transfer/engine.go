@@ -19,6 +19,11 @@ import (
 
 type ProgressCallback func(task *model.TransferTask)
 
+type progressPoint struct {
+	bytes int64
+	time  time.Time
+}
+
 type Engine struct {
 	localNodeID   string
 	localNodeName string
@@ -29,14 +34,22 @@ type Engine struct {
 	progressCb    ProgressCallback
 	receiveCb     func(task *model.TransferTask) bool
 	stopCh        chan struct{}
+
+	connMap   map[string]net.Conn
+	connMutex sync.Mutex
+
+	lastProgress map[string]progressPoint
+	speedMutex   sync.Mutex
 }
 
 func NewEngine(localNodeID, localNodeName string) *Engine {
 	return &Engine{
-		localNodeID:   localNodeID,
+		localNodeID:  localNodeID,
 		localNodeName: localNodeName,
-		tasks:         make(map[string]*model.TransferTask),
-		stopCh:        make(chan struct{}),
+		tasks:        make(map[string]*model.TransferTask),
+		stopCh:       make(chan struct{}),
+		connMap:      make(map[string]net.Conn),
+		lastProgress: make(map[string]progressPoint),
 	}
 }
 
@@ -124,6 +137,8 @@ func (e *Engine) SendFile(taskID string) error {
 		return fmt.Errorf("connect to peer: %w", err)
 	}
 	defer conn.Close()
+
+	e.registerConn(taskID, conn)
 
 	// Send transfer request
 	req := &protocol.TransferRequest{
@@ -226,18 +241,24 @@ func (e *Engine) SendFile(taskID string) error {
 
 func (e *Engine) CancelTask(taskID string) error {
 	e.taskMutex.Lock()
-	defer e.taskMutex.Unlock()
 	task, ok := e.tasks[taskID]
 	if !ok {
+		e.taskMutex.Unlock()
 		return fmt.Errorf("task not found: %s", taskID)
 	}
 	if task.IsTerminal() {
+		e.taskMutex.Unlock()
 		return fmt.Errorf("cannot cancel task in state %s", task.State)
 	}
 	task.State = model.StateCancelled
 	now := time.Now()
 	task.CompletedAt = &now
-	e.notifyProgress(task)
+	snapshot := *task
+	e.taskMutex.Unlock()
+
+	e.closeTaskConn(taskID)
+
+	e.notifyProgress(&snapshot)
 	return nil
 }
 
@@ -294,6 +315,7 @@ func (e *Engine) handleConnection(conn net.Conn) {
 		return
 	}
 
+	e.registerConn(task.ID, conn)
 	e.receiveFileData(conn, task)
 }
 
@@ -313,11 +335,21 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 	}
 	defer outFile.Close()
 
+	cleanup := func() {
+		outFile.Close()
+		os.Remove(tmpPath)
+	}
+
 	for {
 		msg, err := protocol.DecodeMessage(conn)
 		if err != nil {
-			outFile.Close()
-			e.updateState(task, model.StateFailed)
+			e.taskMutex.RLock()
+			cancelled := task.State == model.StateCancelled
+			e.taskMutex.RUnlock()
+			cleanup()
+			if !cancelled {
+				e.updateState(task, model.StateFailed)
+			}
 			return
 		}
 
@@ -325,12 +357,17 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 		case *protocol.ChunkData:
 			data := make([]byte, m.Size)
 			if _, err := io.ReadFull(conn, data); err != nil {
-				outFile.Close()
-				e.updateState(task, model.StateFailed)
+				e.taskMutex.RLock()
+				cancelled := task.State == model.StateCancelled
+				e.taskMutex.RUnlock()
+				cleanup()
+				if !cancelled {
+					e.updateState(task, model.StateFailed)
+				}
 				return
 			}
 			if _, err := outFile.Write(data); err != nil {
-				outFile.Close()
+				cleanup()
 				e.updateState(task, model.StateFailed)
 				return
 			}
@@ -347,6 +384,8 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 			success := receivedMD5 == m.MD5
 			if success {
 				os.Rename(tmpPath, task.SavePath)
+			} else {
+				os.Remove(tmpPath)
 			}
 			protocol.EncodeMessage(conn, &protocol.TransferVerify{Success: success})
 			if success {
@@ -357,8 +396,7 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 			return
 
 		case *protocol.TransferCancel:
-			outFile.Close()
-			os.Remove(tmpPath)
+			cleanup()
 			e.updateState(task, model.StateCancelled)
 			return
 		}
@@ -367,6 +405,10 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 
 func (e *Engine) updateState(task *model.TransferTask, state model.TransferState) {
 	e.taskMutex.Lock()
+	if task.IsTerminal() {
+		e.taskMutex.Unlock()
+		return
+	}
 	task.State = state
 	if state == model.StateCompleted || state == model.StateFailed || state == model.StateCancelled {
 		now := time.Now()
@@ -378,9 +420,37 @@ func (e *Engine) updateState(task *model.TransferTask, state model.TransferState
 }
 
 func (e *Engine) notifyProgress(snapshot *model.TransferTask) {
-	if e.progressCb != nil {
-		go e.progressCb(snapshot)
+	if e.progressCb == nil {
+		return
 	}
+	// Calculate speed
+	e.speedMutex.Lock()
+	now := time.Now()
+	if pt, ok := e.lastProgress[snapshot.ID]; ok {
+		elapsed := now.Sub(pt.time).Seconds()
+		if elapsed > 0 {
+			snapshot.Speed = int64(float64(snapshot.BytesTransferred-pt.bytes) / elapsed)
+		}
+	}
+	e.lastProgress[snapshot.ID] = progressPoint{bytes: snapshot.BytesTransferred, time: now}
+	e.speedMutex.Unlock()
+
+	go e.progressCb(snapshot)
+}
+
+func (e *Engine) registerConn(taskID string, conn net.Conn) {
+	e.connMutex.Lock()
+	e.connMap[taskID] = conn
+	e.connMutex.Unlock()
+}
+
+func (e *Engine) closeTaskConn(taskID string) {
+	e.connMutex.Lock()
+	if conn, ok := e.connMap[taskID]; ok {
+		conn.Close()
+		delete(e.connMap, taskID)
+	}
+	e.connMutex.Unlock()
 }
 
 func calcFileMD5(path string) (string, error) {
