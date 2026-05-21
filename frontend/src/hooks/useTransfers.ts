@@ -53,10 +53,15 @@ export function useTransfers() {
     await SelectAndSend(peerId);
   };
 
+  const respondReceive = async (taskId: string, accept: boolean) => {
+    const { RespondReceive } = await import('../../wailsjs/go/main/App');
+    await RespondReceive(taskId, accept);
+  };
+
   const cancelTask = async (taskId: string) => {
     const { CancelTask } = await import('../../wailsjs/go/main/App');
     await CancelTask(taskId);
   };
 
-  return { tasks, sendFile, cancelTask };
+  return { tasks, sendFile, respondReceive, cancelTask };
 }

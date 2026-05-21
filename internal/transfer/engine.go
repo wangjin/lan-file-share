@@ -119,10 +119,12 @@ func (e *Engine) SendFile(taskID string) error {
 
 	// Send transfer request
 	req := &protocol.TransferRequest{
-		FileName: task.FileName,
-		FileSize: task.FileSize,
-		FileMD5:  task.FileMD5,
-		Chunks:   task.ChunksTotal,
+		FileName:   task.FileName,
+		FileSize:   task.FileSize,
+		FileMD5:    task.FileMD5,
+		Chunks:     task.ChunksTotal,
+		SenderID:   e.localNodeID,
+		SenderName: e.localNodeName,
 	}
 	if err := protocol.EncodeMessage(conn, req); err != nil {
 		e.updateState(task, model.StateFailed)
@@ -266,6 +268,8 @@ func (e *Engine) handleConnection(conn net.Conn) {
 		FileSize:    req.FileSize,
 		FileMD5:     req.FileMD5,
 		ChunksTotal: req.Chunks,
+		PeerID:      req.SenderID,
+		PeerName:    req.SenderName,
 		CreatedAt:   time.Now(),
 	}
 	e.taskMutex.Lock()

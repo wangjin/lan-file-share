@@ -302,6 +302,48 @@
   background: rgba(233, 69, 96, 0.1);
 }
 
+/* ---------- Receive Actions ---------- */
+
+.receive-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-accept {
+  padding: 4px 14px;
+  background: linear-gradient(135deg, #3fb950, #2ea043);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(63, 185, 80, 0.25);
+}
+
+.btn-accept:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(63, 185, 80, 0.4);
+}
+
+.btn-reject {
+  padding: 4px 14px;
+  background: rgba(233, 69, 96, 0.15);
+  color: #e94560;
+  border: 1px solid rgba(233, 69, 96, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-reject:hover {
+  background: rgba(233, 69, 96, 0.25);
+  border-color: #e94560;
+}
+
 /* ---------- Transfer Panel ---------- */
 
 .transfer-panel {

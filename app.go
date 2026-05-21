@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"local-file-share/internal/discovery"
 	"local-file-share/internal/model"
@@ -12,10 +13,11 @@ import (
 )
 
 type App struct {
-	ctx       context.Context
-	discovery *discovery.Service
-	engine    *transfer.Engine
-	queue     *queue.Manager
+	ctx             context.Context
+	discovery       *discovery.Service
+	engine          *transfer.Engine
+	queue           *queue.Manager
+	pendingReceives sync.Map
 }
 
 func NewApp() *App {
@@ -42,7 +44,9 @@ func (a *App) Startup(ctx context.Context) {
 	})
 	eng.SetReceiveCallback(func(task *model.TransferTask) bool {
 		a.queue.Add(task)
-		return true
+		ch := make(chan bool, 1)
+		a.pendingReceives.Store(task.ID, ch)
+		return <-ch
 	})
 	if err := eng.Start(); err != nil {
 		fmt.Fprintf(os.Stderr, "engine start failed: %v\n", err)

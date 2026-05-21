@@ -8,7 +8,7 @@ import './App.css';
 
 function App() {
   const { devices, localInfo } = useDevices();
-  const { tasks, sendFile, cancelTask } = useTransfers();
+  const { tasks, sendFile, respondReceive, cancelTask } = useTransfers();
   const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
   const selectedDevice = devices.find(d => d.node_id === selectedPeerId);
 
@@ -29,6 +29,7 @@ function App() {
           tasks={tasks}
           peerId={selectedPeerId}
           onCancel={cancelTask}
+          onRespond={respondReceive}
         />
       </div>
     </div>

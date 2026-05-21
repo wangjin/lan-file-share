@@ -16,10 +16,12 @@ type Message interface {
 }
 
 type TransferRequest struct {
-	FileName string `json:"file_name"`
-	FileSize int64  `json:"file_size"`
-	FileMD5  string `json:"file_md5"`
-	Chunks   int    `json:"chunks"`
+	FileName   string `json:"file_name"`
+	FileSize   int64  `json:"file_size"`
+	FileMD5    string `json:"file_md5"`
+	Chunks     int    `json:"chunks"`
+	SenderID   string `json:"sender_id"`
+	SenderName string `json:"sender_name"`
 }
 
 func (m *TransferRequest) Type() string { return TypeTransferRequest }

@@ -1,22 +1,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"local-file-share/internal/discovery"
 	"local-file-share/internal/model"
-
-	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
-
-// runtimeOpenFileDialog opens a native file picker dialog and returns the selected file path.
-func runtimeOpenFileDialog(ctx context.Context) (string, error) {
-	return wailsRuntime.OpenFileDialog(ctx, wailsRuntime.OpenDialogOptions{
-		Title: "Select File to Send",
-	})
-}
 
 func (a *App) SelectAndSend(peerID string) error {
 	if a.engine == nil || a.discovery == nil {
@@ -55,16 +45,22 @@ func (a *App) SelectAndSend(peerID string) error {
 	return nil
 }
 
+func (a *App) RespondReceive(taskID string, accept bool) error {
+	val, ok := a.pendingReceives.LoadAndDelete(taskID)
+	if !ok {
+		return fmt.Errorf("no pending receive for task: %s", taskID)
+	}
+	val.(chan bool) <- accept
+	if !accept {
+		a.queue.UpdateState(taskID, model.StateFailed)
+	}
+	return nil
+}
+
 func (a *App) CancelTask(taskID string) error {
 	return a.queue.Cancel(taskID)
 }
 
 func (a *App) GetTasks() []*model.TransferTask {
 	return a.queue.GetAll()
-}
-
-func (a *App) AcceptReceive(taskID string) {
-	a.engine.SetReceiveCallback(func(task *model.TransferTask) bool {
-		return true
-	})
 }

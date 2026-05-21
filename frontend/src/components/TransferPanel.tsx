@@ -6,9 +6,10 @@ interface Props {
   tasks: TransferTask[];
   peerId: string | null;
   onCancel: (id: string) => void;
+  onRespond: (id: string, accept: boolean) => void;
 }
 
-export const TransferPanel: React.FC<Props> = ({ tasks, peerId, onCancel }) => {
+export const TransferPanel: React.FC<Props> = ({ tasks, peerId, onCancel, onRespond }) => {
   const filtered = peerId ? tasks.filter(t => t.peer_id === peerId) : tasks;
   const active = filtered.filter(t => taskStateName(t.state) === 'transferring');
   const waiting = filtered.filter(t => taskStateName(t.state) === 'pending');
@@ -19,19 +20,19 @@ export const TransferPanel: React.FC<Props> = ({ tasks, peerId, onCancel }) => {
       {active.length > 0 && (
         <div className="section">
           <div className="section-title">传输中 ({active.length})</div>
-          {active.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} />)}
+          {active.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} onRespond={onRespond} />)}
         </div>
       )}
       {waiting.length > 0 && (
         <div className="section">
           <div className="section-title">等待中 ({waiting.length})</div>
-          {waiting.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} />)}
+          {waiting.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} onRespond={onRespond} />)}
         </div>
       )}
       {done.length > 0 && (
         <div className="section">
           <div className="section-title">已完成 ({done.length})</div>
-          {done.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} />)}
+          {done.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} onRespond={onRespond} />)}
         </div>
       )}
       {!active.length && !waiting.length && !done.length && (
