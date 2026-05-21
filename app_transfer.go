@@ -45,7 +45,14 @@ func (a *App) SelectAndSend(peerID string) error {
 	return nil
 }
 
-func (a *App) RespondReceive(taskID string, accept bool) error {
+func (a *App) ChooseSavePath(fileName string) (string, error) {
+	return runtimeSaveFileDialog(a.ctx, fileName)
+}
+
+func (a *App) RespondReceive(taskID string, accept bool, savePath string) error {
+	if accept && savePath != "" {
+		a.engine.SetTaskSavePath(taskID, savePath)
+	}
 	val, ok := a.pendingReceives.LoadAndDelete(taskID)
 	if !ok {
 		return fmt.Errorf("no pending receive for task: %s", taskID)

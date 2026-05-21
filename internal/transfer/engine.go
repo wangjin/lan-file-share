@@ -58,6 +58,14 @@ func (e *Engine) Start() error {
 
 func (e *Engine) TCPPort() int { return e.tcpPort }
 
+func (e *Engine) SetTaskSavePath(taskID string, savePath string) {
+	e.taskMutex.Lock()
+	defer e.taskMutex.Unlock()
+	if task, ok := e.tasks[taskID]; ok {
+		task.SavePath = savePath
+	}
+}
+
 func (e *Engine) Stop() {
 	close(e.stopCh)
 	if e.tcpListener != nil {
@@ -292,10 +300,11 @@ func (e *Engine) handleConnection(conn net.Conn) {
 func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 	e.updateState(task, model.StateTransferring)
 
-	saveDir := model.DefaultSaveDir()
-	savePath := resolveSavePath(saveDir, task.FileName)
-	task.SavePath = savePath
-	tmpPath := savePath + ".tmp"
+	if task.SavePath == "" {
+		saveDir := model.DefaultSaveDir()
+		task.SavePath = resolveSavePath(saveDir, task.FileName)
+	}
+	tmpPath := task.SavePath + ".tmp"
 
 	outFile, err := os.Create(tmpPath)
 	if err != nil {
@@ -337,7 +346,7 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 			receivedMD5, _ := calcFileMD5(tmpPath)
 			success := receivedMD5 == m.MD5
 			if success {
-				os.Rename(tmpPath, savePath)
+				os.Rename(tmpPath, task.SavePath)
 			}
 			protocol.EncodeMessage(conn, &protocol.TransferVerify{Success: success})
 			if success {

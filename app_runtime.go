@@ -15,3 +15,10 @@ func runtimeOpenFileDialog(ctx context.Context) (string, error) {
 		Title: "Select File to Send",
 	})
 }
+
+func runtimeSaveFileDialog(ctx context.Context, defaultFilename string) (string, error) {
+	return runtime.SaveFileDialog(ctx, runtime.SaveDialogOptions{
+		Title:           "Save File",
+		DefaultFilename: defaultFilename,
+	})
+}

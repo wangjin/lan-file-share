@@ -4,12 +4,14 @@ import {model} from '../models';
 
 export function CancelTask(arg1:string):Promise<void>;
 
+export function ChooseSavePath(arg1:string):Promise<string>;
+
 export function GetDevices():Promise<Array<Record<string, any>>>;
 
 export function GetLocalInfo():Promise<Record<string, any>>;
 
 export function GetTasks():Promise<Array<model.TransferTask>>;
 
-export function RespondReceive(arg1:string,arg2:boolean):Promise<void>;
+export function RespondReceive(arg1:string,arg2:boolean,arg3:string):Promise<void>;
 
 export function SelectAndSend(arg1:string):Promise<void>;

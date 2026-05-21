@@ -54,8 +54,14 @@ export function useTransfers() {
   };
 
   const respondReceive = async (taskId: string, accept: boolean) => {
-    const { RespondReceive } = await import('../../wailsjs/go/main/App');
-    await RespondReceive(taskId, accept);
+    const { RespondReceive, ChooseSavePath } = await import('../../wailsjs/go/main/App');
+    let savePath = '';
+    if (accept) {
+      const task = tasks.find(t => t.id === taskId);
+      savePath = await ChooseSavePath(task?.file_name || 'file');
+      if (!savePath) return;
+    }
+    await RespondReceive(taskId, accept, savePath);
   };
 
   const cancelTask = async (taskId: string) => {

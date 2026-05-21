@@ -6,6 +6,10 @@ export function CancelTask(arg1) {
   return window['go']['main']['App']['CancelTask'](arg1);
 }
 
+export function ChooseSavePath(arg1) {
+  return window['go']['main']['App']['ChooseSavePath'](arg1);
+}
+
 export function GetDevices() {
   return window['go']['main']['App']['GetDevices']();
 }
@@ -18,8 +22,8 @@ export function GetTasks() {
   return window['go']['main']['App']['GetTasks']();
 }
 
-export function RespondReceive(arg1, arg2) {
-  return window['go']['main']['App']['RespondReceive'](arg1, arg2);
+export function RespondReceive(arg1, arg2, arg3) {
+  return window['go']['main']['App']['RespondReceive'](arg1, arg2, arg3);
 }
 
 export function SelectAndSend(arg1) {

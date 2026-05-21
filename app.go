@@ -38,9 +38,7 @@ func (a *App) Startup(ctx context.Context) {
 	eng := transfer.NewEngine(svc.NodeID(), nodeName)
 	eng.SetProgressCallback(func(task *model.TransferTask) {
 		a.queue.UpdateProgress(task.ID, task.BytesTransferred, task.Speed)
-		if task.IsTerminal() {
-			a.queue.UpdateState(task.ID, task.State)
-		}
+		a.queue.UpdateState(task.ID, task.State)
 	})
 	eng.SetReceiveCallback(func(task *model.TransferTask) bool {
 		a.queue.Add(task)
