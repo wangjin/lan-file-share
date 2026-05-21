@@ -159,7 +159,10 @@ func (e *Engine) SendFile(taskID string) error {
 			return nil
 		default:
 		}
-		if task.State == model.StateCancelled {
+		e.taskMutex.RLock()
+		cancelled := task.State == model.StateCancelled
+		e.taskMutex.RUnlock()
+		if cancelled {
 			protocol.EncodeMessage(conn, &protocol.TransferCancel{Reason: "cancelled"})
 			return nil
 		}
@@ -183,9 +186,12 @@ func (e *Engine) SendFile(taskID string) error {
 			return err
 		}
 
+		e.taskMutex.Lock()
 		task.BytesTransferred += int64(n)
 		task.ChunksCompleted = chunk + 1
-		e.notifyProgress(task)
+		snapshot := *task
+		e.taskMutex.Unlock()
+		e.notifyProgress(&snapshot)
 	}
 
 	// Send complete
@@ -315,9 +321,12 @@ func (e *Engine) receiveFileData(conn net.Conn, task *model.TransferTask) {
 				e.updateState(task, model.StateFailed)
 				return
 			}
+			e.taskMutex.Lock()
 			task.BytesTransferred += m.Size
 			task.ChunksCompleted = m.Sequence + 1
-			e.notifyProgress(task)
+			snapshot := *task
+			e.taskMutex.Unlock()
+			e.notifyProgress(&snapshot)
 
 		case *protocol.TransferComplete:
 			outFile.Close()
@@ -350,13 +359,14 @@ func (e *Engine) updateState(task *model.TransferTask, state model.TransferState
 		now := time.Now()
 		task.CompletedAt = &now
 	}
+	snapshot := *task
 	e.taskMutex.Unlock()
-	e.notifyProgress(task)
+	e.notifyProgress(&snapshot)
 }
 
-func (e *Engine) notifyProgress(task *model.TransferTask) {
+func (e *Engine) notifyProgress(snapshot *model.TransferTask) {
 	if e.progressCb != nil {
-		go e.progressCb(task)
+		go e.progressCb(snapshot)
 	}
 }
 
