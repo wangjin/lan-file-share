@@ -40,6 +40,9 @@ func (a *App) Startup(ctx context.Context) {
 			a.queue.UpdateState(task.ID, task.State)
 		}
 	})
+	eng.SetReceiveCallback(func(task *model.TransferTask) bool {
+		return true
+	})
 	if err := eng.Start(); err != nil {
 		fmt.Fprintf(os.Stderr, "engine start failed: %v\n", err)
 		return

@@ -311,13 +311,13 @@ func (s *Service) broadcast() {
 		Timestamp: time.Now().Unix(),
 	}
 
-	data, err := json.Marshal(msg)
-	if err != nil {
-		log.Printf("discovery: marshal error: %v", err)
-		return
-	}
-
 	for _, ip := range ips {
+		msg.IP = ip
+		data, err := json.Marshal(msg)
+		if err != nil {
+			log.Printf("discovery: marshal error: %v", err)
+			continue
+		}
 		bcast := getBroadcastIP(ip)
 		addr, err := net.ResolveUDPAddr("udp4", fmt.Sprintf("%s:%d", bcast, s.port))
 		if err != nil {
