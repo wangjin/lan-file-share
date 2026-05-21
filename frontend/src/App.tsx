@@ -1,28 +1,38 @@
-import {useState} from 'react';
-import logo from './assets/images/logo-universal.png';
+import React, { useState } from 'react';
+import { useDevices } from './hooks/useDevices';
+import { useTransfers } from './hooks/useTransfers';
+import { Sidebar } from './components/Sidebar';
+import { TopBar } from './components/TopBar';
+import { TransferPanel } from './components/TransferPanel';
 import './App.css';
-import {Greet} from "../wailsjs/go/main/App";
 
 function App() {
-    const [resultText, setResultText] = useState("Please enter your name below 👇");
-    const [name, setName] = useState('');
-    const updateName = (e: any) => setName(e.target.value);
-    const updateResultText = (result: string) => setResultText(result);
+  const { devices, localInfo } = useDevices();
+  const { tasks, sendFile, cancelTask } = useTransfers();
+  const [selectedPeerId, setSelectedPeerId] = useState<string | null>(null);
+  const selectedDevice = devices.find(d => d.node_id === selectedPeerId);
 
-    function greet() {
-        Greet(name).then(updateResultText);
-    }
-
-    return (
-        <div id="App">
-            <img src={logo} id="logo" alt="logo"/>
-            <div id="result" className="result">{resultText}</div>
-            <div id="input" className="input-box">
-                <input id="name" className="input" onChange={updateName} autoComplete="off" name="input" type="text"/>
-                <button className="btn" onClick={greet}>Greet</button>
-            </div>
-        </div>
-    )
+  return (
+    <div className="app">
+      <Sidebar
+        devices={devices}
+        localInfo={localInfo}
+        selectedPeerId={selectedPeerId}
+        onSelectDevice={setSelectedPeerId}
+      />
+      <div className="main">
+        <TopBar
+          device={selectedDevice}
+          onSendFile={() => selectedPeerId && sendFile(selectedPeerId)}
+        />
+        <TransferPanel
+          tasks={tasks}
+          peerId={selectedPeerId}
+          onCancel={cancelTask}
+        />
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
