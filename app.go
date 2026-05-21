@@ -45,6 +45,7 @@ func (a *App) Startup(ctx context.Context) {
 		return
 	}
 	a.engine = eng
+	svc.SetTCPPort(eng.TCPPort())
 
 	svc.SetCallback(func(device *discovery.DeviceEntry, online bool) {
 		runtimeEventsEmit(a.ctx, "device:changed", map[string]interface{}{

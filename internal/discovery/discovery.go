@@ -85,6 +85,11 @@ func (s *Service) NodeID() string {
 	return s.nodeID
 }
 
+// SetTCPPort updates the TCP port advertised in broadcast messages.
+func (s *Service) SetTCPPort(port int) {
+	s.tcpPort = port
+}
+
 // Start binds the UDP port and starts the listener, broadcaster, and cleanup goroutines.
 func (s *Service) Start() error {
 	conn, port, err := s.bindPort()
@@ -229,7 +234,6 @@ func (s *Service) updateDevice(msg BroadcastMessage) {
 	defer s.mu.Unlock()
 
 	entry, exists := s.devices[msg.NodeID]
-	isNew := !exists
 	if exists {
 		entry.Name = msg.Name
 		entry.IP = msg.IP
@@ -252,7 +256,7 @@ func (s *Service) updateDevice(msg BroadcastMessage) {
 
 	if s.callback != nil {
 		cb := s.callback
-		go cb(entry, isNew)
+		go cb(entry, true)
 	}
 }
 
