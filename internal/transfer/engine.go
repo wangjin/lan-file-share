@@ -240,6 +240,8 @@ func (e *Engine) SendFile(taskID string) error {
 }
 
 func (e *Engine) CancelTask(taskID string) error {
+	e.closeTaskConn(taskID)
+
 	e.taskMutex.Lock()
 	task, ok := e.tasks[taskID]
 	if !ok {
@@ -255,8 +257,6 @@ func (e *Engine) CancelTask(taskID string) error {
 	task.CompletedAt = &now
 	snapshot := *task
 	e.taskMutex.Unlock()
-
-	e.closeTaskConn(taskID)
 
 	e.notifyProgress(&snapshot)
 	return nil
