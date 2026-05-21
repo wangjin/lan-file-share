@@ -41,6 +41,7 @@ func (a *App) Startup(ctx context.Context) {
 		}
 	})
 	eng.SetReceiveCallback(func(task *model.TransferTask) bool {
+		a.queue.Add(task)
 		return true
 	})
 	if err := eng.Start(); err != nil {
