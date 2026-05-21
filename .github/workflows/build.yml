@@ -32,7 +32,7 @@ jobs:
           path: build/bin/local-file-share.exe
 
   build-macos:
-    runs-on: macos-13
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
