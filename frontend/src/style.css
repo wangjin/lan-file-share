@@ -1,12 +1,50 @@
+/* ============================================================
+   Global Reset & Base Styles – Dark Theme
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html {
-    background-color: #1a1a2e;
-    color: #eaeaea;
+  background-color: #0d1117;
+  color: #e6edf3;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 body {
-    margin: 0;
-    color: #eaeaea;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  line-height: 1.4;
+  color: #e6edf3;
+  background: #0d1117;
+}
+
+/* Prevent text selection during drag interactions */
+.dragging {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+a {
+  color: #5b8def;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
