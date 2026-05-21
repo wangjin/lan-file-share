@@ -1,24 +1,20 @@
 package main
 
 import (
-	"context"
-
-	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-func runtimeEventsEmit(ctx context.Context, eventName string, data ...interface{}) {
-	runtime.EventsEmit(ctx, eventName, data...)
+func runtimeOpenFileDialog() (string, error) {
+	result, err := application.Get().Dialog.OpenFile().
+		SetTitle("Select File to Send").
+		PromptForSingleSelection()
+	return result, err
 }
 
-func runtimeOpenFileDialog(ctx context.Context) (string, error) {
-	return runtime.OpenFileDialog(ctx, runtime.OpenDialogOptions{
-		Title: "Select File to Send",
-	})
-}
-
-func runtimeSaveFileDialog(ctx context.Context, defaultFilename string) (string, error) {
-	return runtime.SaveFileDialog(ctx, runtime.SaveDialogOptions{
-		Title:           "Save File",
-		DefaultFilename: defaultFilename,
-	})
+func runtimeSaveFileDialog(defaultFilename string) (string, error) {
+	result, err := application.Get().Dialog.SaveFile().
+		SetMessage("Save File").
+		SetFilename(defaultFilename).
+		PromptForSingleSelection()
+	return result, err
 }

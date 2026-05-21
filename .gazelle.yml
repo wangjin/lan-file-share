@@ -1,0 +1,7 @@
+# Gazelle configuration
+# Run `bazel run //:gazelle` to regenerate BUILD files
+# Run `bazel run //:gazelle-update-repos` to update go_deps
+
+language: go
+build_file_names: BUILD.bazel,BUILD
+go_naming_convention: go_default_library

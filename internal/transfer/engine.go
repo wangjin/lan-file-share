@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"local-file-share/internal/model"
-	"local-file-share/internal/protocol"
+	"lan-file-share/internal/model"
+	"lan-file-share/internal/protocol"
 
 	"github.com/google/uuid"
 )

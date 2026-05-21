@@ -1,18 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Events } from '@wailsio/runtime';
+import { GetTasks, SelectAndSend, RespondReceive, ChooseSavePath, CancelTask } from '../../bindings/lan-file-share/app.js';
+import { TransferTask } from '../../bindings/lan-file-share/internal/model/models.js';
 
-export interface TransferTask {
-  id: string;
-  type: number; // 0=send, 1=receive
-  state: number; // 0=pending, 1=transferring, 2=paused, 3=completed, 4=failed, 5=cancelled
-  file_name: string;
-  file_size: number;
-  peer_id: string;
-  peer_name: string;
-  bytes_transferred: number;
-  speed: number;
-  created_at: string;
-  completed_at?: string;
-}
+export type { TransferTask };
 
 const stateNames = ['pending', 'transferring', 'paused', 'completed', 'failed', 'cancelled'] as const;
 const typeNames = ['send', 'receive'] as const;
@@ -29,32 +20,29 @@ export function useTransfers() {
   const [tasks, setTasks] = useState<TransferTask[]>([]);
 
   useEffect(() => {
-    import('../../wailsjs/go/main/App').then(({ GetTasks }) => {
-      GetTasks().then(setTasks);
+    GetTasks().then((t: (TransferTask | null)[]) => {
+      setTasks(t.filter((x): x is TransferTask => x !== null));
     });
 
-    import('../../wailsjs/runtime/runtime').then(({ EventsOn }) => {
-      EventsOn('task:changed', (task: TransferTask) => {
-        setTasks(prev => {
-          const idx = prev.findIndex(t => t.id === task.id);
-          if (idx >= 0) {
-            const next = [...prev];
-            next[idx] = task;
-            return next;
-          }
-          return [...prev, task];
-        });
+    Events.On('task:changed', (ev: any) => {
+      const task = ev.data as TransferTask;
+      setTasks(prev => {
+        const idx = prev.findIndex(t => t.id === task.id);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = task;
+          return next;
+        }
+        return [...prev, task];
       });
     });
   }, []);
 
   const sendFile = async (peerId: string) => {
-    const { SelectAndSend } = await import('../../wailsjs/go/main/App');
     await SelectAndSend(peerId);
   };
 
   const respondReceive = async (taskId: string, accept: boolean) => {
-    const { RespondReceive, ChooseSavePath } = await import('../../wailsjs/go/main/App');
     let savePath = '';
     if (accept) {
       const task = tasks.find(t => t.id === taskId);
@@ -65,7 +53,6 @@ export function useTransfers() {
   };
 
   const cancelTask = async (taskId: string) => {
-    const { CancelTask } = await import('../../wailsjs/go/main/App');
     await CancelTask(taskId);
   };
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"local-file-share/internal/discovery"
-	"local-file-share/internal/model"
+	"lan-file-share/internal/discovery"
+	"lan-file-share/internal/model"
 )
 
 func (a *App) SelectAndSend(peerID string) error {
@@ -13,7 +13,7 @@ func (a *App) SelectAndSend(peerID string) error {
 		return fmt.Errorf("service not initialized")
 	}
 
-	filePath, err := runtimeOpenFileDialog(a.ctx)
+	filePath, err := runtimeOpenFileDialog()
 	if err != nil || filePath == "" {
 		return nil
 	}
@@ -46,7 +46,7 @@ func (a *App) SelectAndSend(peerID string) error {
 }
 
 func (a *App) ChooseSavePath(fileName string) (string, error) {
-	return runtimeSaveFileDialog(a.ctx, fileName)
+	return runtimeSaveFileDialog(fileName)
 }
 
 func (a *App) RespondReceive(taskID string, accept bool, savePath string) error {

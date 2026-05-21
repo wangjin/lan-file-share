@@ -1,0 +1,72 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("@gazelle//:def.bzl", "gazelle")
+
+# Gazelle: manage Go dependencies
+gazelle(
+    name = "gazelle",
+    map_kind = {
+        "go_binary": "go_binary_conditional",
+    },
+)
+
+# Frontend build: npm install + vite build
+genrule(
+    name = "frontend_dist",
+    srcs = glob([
+        "frontend/src/**/*",
+        "frontend/bindings/**/*.ts",
+        "frontend/index.html",
+        "frontend/vite.config.ts",
+        "frontend/tsconfig.json",
+        "frontend/package.json",
+        "frontend/package-lock.json",
+    ]),
+    outs = ["frontend_dist.stamp"],
+    cmd = """
+        export HOME=$$(mktemp -d)
+        mkdir -p $(@D)/frontend/dist
+        cd frontend
+        npm install --no-audit --no-fund 2>/dev/null
+        npm run build
+        touch $(RULEDIR)/frontend_dist.stamp
+    """,
+    tags = ["local"],
+    toolchains = [],
+)
+
+# Go library: all application code
+go_library(
+    name = "app_lib",
+    srcs = [
+        "main.go",
+        "app.go",
+        "app_discovery.go",
+        "app_runtime.go",
+    ] + glob(["internal/**/*.go"]),
+    importpath = "lan-file-share",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@com_github_google_uuid//uuid",
+        "@com_github_wailsapp_wails_v3//pkg/application:application",
+    ],
+    embedsrcs = [":frontend_dist"],
+)
+
+# Go binary: the desktop application
+go_binary(
+    name = "lan-file-share",
+    embed = [":app_lib"],
+    visibility = ["//visibility:public"],
+    x_defs = {"main.version": "{STABLE_VERSION}"},
+)
+
+# Go tests
+go_test(
+    name = "internal_test",
+    srcs = glob(["internal/**/*_test.go"]),
+    embed = [":app_lib"],
+    deps = [
+        "@com_github_google_uuid//uuid",
+    ],
+    size = "small",
+)

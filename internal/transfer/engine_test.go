@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"local-file-share/internal/model"
+	"lan-file-share/internal/model"
 )
 
 func TestCalcFileMD5(t *testing.T) {

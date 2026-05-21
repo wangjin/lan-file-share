@@ -3,7 +3,7 @@ package transfer
 import (
 	"fmt"
 
-	"local-file-share/internal/model"
+	"lan-file-share/internal/model"
 )
 
 type StateCallback func(from, to model.TransferState)

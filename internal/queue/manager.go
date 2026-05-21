@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"local-file-share/internal/model"
+	"lan-file-share/internal/model"
 )
 
 type StateChangeCallback func(task *model.TransferTask)

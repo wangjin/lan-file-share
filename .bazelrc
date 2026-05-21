@@ -1,0 +1,17 @@
+build --enable_bzlmod
+
+# Platform mappings for cross-compilation
+build:darwin_arm64 --platforms=@rules_go//go/toolchain:darwin_arm64
+build:darwin_amd64 --platforms=@rules_go//go/toolchain:darwin_amd64
+build:windows_amd64 --platforms=@rules_go//go/toolchain:windows_amd64
+build:linux_amd64 --platforms=@rules_go//go/toolchain:linux_amd64
+build:linux_arm64 --platforms=@rules_go//go/toolchain:linux_arm64
+
+# CGO required by Wails (WebView bindings)
+build --action_env=CGO_ENABLED=1
+
+# Output to build/bin
+build --symlink_prefix=build/bin/
+
+# Suppress external warnings
+build --host_action_env=CGO_ENABLED=1

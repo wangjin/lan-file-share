@@ -2,3 +2,13 @@ node_modules/
 dist/
 build/bin/
 .superpowers/
+
+# Bazel
+bazel-*
+
+# Taskfile
+.task/
+
+# Coverage
+coverage.out
+coverage.html

@@ -21,15 +21,20 @@ jobs:
           node-version: "22"
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
 
-      - name: Build
-        run: wails build -platform windows/amd64
+      - name: Install Taskfile
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
+      - name: Package Windows
+        run: task package:windows
 
       - uses: actions/upload-artifact@v4
         with:
           name: lan-file-share-windows-amd64
-          path: build/bin/local-file-share.exe
+          path: build/bin/lan-file-share-windows-amd64.exe
 
   build-macos:
     runs-on: macos-26
@@ -45,15 +50,35 @@ jobs:
           node-version: "22"
 
       - name: Install Wails CLI
-        run: go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
 
-      - name: Build
-        run: wails build -platform darwin/amd64
+      - name: Install Taskfile
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
+      - name: Generate macOS icon
+        run: |
+          mkdir -p /tmp/icon.iconset
+          sips -z 16 16 build/appicon.png --out /tmp/icon.iconset/icon_16x16.png
+          sips -z 32 32 build/appicon.png --out /tmp/icon.iconset/icon_16x16@2x.png
+          sips -z 32 32 build/appicon.png --out /tmp/icon.iconset/icon_32x32.png
+          sips -z 64 64 build/appicon.png --out /tmp/icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 build/appicon.png --out /tmp/icon.iconset/icon_128x128.png
+          sips -z 256 256 build/appicon.png --out /tmp/icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 build/appicon.png --out /tmp/icon.iconset/icon_256x256.png
+          sips -z 512 512 build/appicon.png --out /tmp/icon.iconset/icon_256x256@2x.png
+          sips -z 512 512 build/appicon.png --out /tmp/icon.iconset/icon_512x512.png
+          sips -z 1024 1024 build/appicon.png --out /tmp/icon.iconset/icon_512x512@2x.png
+          iconutil -c icns /tmp/icon.iconset -o build/darwin/icons.icns
+
+      - name: Package macOS .app
+        run: task package:darwin
 
       - uses: actions/upload-artifact@v4
         with:
-          name: lan-file-share-macos-amd64
-          path: build/bin/local-file-share.app
+          name: lan-file-share-macos
+          path: build/bin/lan-file-share.app
 
   test:
     runs-on: ubuntu-latest
@@ -64,5 +89,10 @@ jobs:
         with:
           go-version: "1.26"
 
+      - name: Install Taskfile
+        uses: arduino/setup-task@v2
+        with:
+          version: 3.x
+
       - name: Run tests
-        run: go test ./internal/... -v -race
+        run: task test

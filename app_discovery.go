@@ -1,6 +1,6 @@
 package main
 
-import "local-file-share/internal/model"
+import "lan-file-share/internal/model"
 
 func (a *App) GetDevices() []map[string]interface{} {
 	if a.discovery == nil {

@@ -1,6 +1,6 @@
-# Local File Share
+# LAN File Share
 
-局域网文件传输工具，基于 Wails 构建，支持 macOS 和 Windows。
+局域网文件传输工具，基于 Wails v3 构建，支持 macOS、Windows 和 Linux。
 
 ## 功能
 
@@ -13,7 +13,7 @@
 
 ## 技术栈
 
-- **后端:** Go + Wails v2
+- **后端:** Go + Wails v3
 - **前端:** React + TypeScript + Vite
 - **协议:** UDP 广播发现 + TCP 文件传输，自定义二进制协议（长度前缀 + JSON 信封）
 
@@ -21,25 +21,32 @@
 
 ### 前置依赖
 
-- Go 1.23+
+- Go 1.25+
 - Node.js 22+
-- [Wails CLI](https://wails.io/docs/gettingstarted/installation) v2
+- [Wails v3 CLI](https://wails.io/) (`go install github.com/wailsapp/wails/v3/cmd/wails3@latest`)
+- [Task](https://taskfile.dev/) (可选，用于 Taskfile 构建)
 
 ### 运行开发模式
 
 ```bash
-wails dev
+wails3 dev
+# 或
+task dev
 ```
 
 ### 构建
 
 ```bash
 # 当前平台
-wails build
+task build
 
 # 指定平台
-wails build -platform windows/amd64
-wails build -platform darwin/universal
+task build:darwin:arm64
+task build:windows:amd64
+task build:linux:amd64
+
+# 全平台
+task build:all
 ```
 
 ## 项目结构
@@ -57,8 +64,11 @@ wails build -platform darwin/universal
 │   ├── queue/manager.go           # 传输任务队列管理
 │   └── model/                      # 数据模型
 ├── frontend/                       # React 前端
+│   ├── bindings/                   # 自动生成的 Wails 绑定
 │   └── src/
 │       ├── hooks/                  # 状态管理 hooks
 │       └── components/             # UI 组件
+├── Taskfile.yml                    # Taskfile 多平台构建
+├── BUILD.bazel / MODULE.bazel      # Bazel 构建配置
 └── .github/workflows/build.yml    # CI 构建
 ```

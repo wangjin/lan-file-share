@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Events } from '@wailsio/runtime';
+import { GetLocalInfo, GetDevices } from '../../bindings/lan-file-share/app.js';
 
 export interface Device {
   node_id: string;
@@ -14,26 +16,22 @@ export function useDevices() {
   const [localInfo, setLocalInfo] = useState<{ node_id: string; name: string; os: string } | null>(null);
 
   useEffect(() => {
-    // Import Wails bindings dynamically
-    import('../../wailsjs/go/main/App').then(({ GetLocalInfo, GetDevices }) => {
-      GetLocalInfo().then((info) => setLocalInfo(info as { node_id: string; name: string; os: string }));
-      GetDevices().then((devs) => setDevices(devs as Device[]));
-    });
+    GetLocalInfo().then((info: any) => setLocalInfo(info));
+    GetDevices().then((devs: any) => setDevices(devs));
 
-    import('../../wailsjs/runtime/runtime').then(({ EventsOn }) => {
-      EventsOn('device:changed', (data: Device) => {
-        setDevices(prev => {
-          const idx = prev.findIndex(d => d.node_id === data.node_id);
-          if (data.online) {
-            if (idx >= 0) {
-              const next = [...prev];
-              next[idx] = data;
-              return next;
-            }
-            return [...prev, data];
+    Events.On('device:changed', (ev: any) => {
+      const d = ev.data as Device;
+      setDevices(prev => {
+        const idx = prev.findIndex(dev => dev.node_id === d.node_id);
+        if (d.online) {
+          if (idx >= 0) {
+            const next = [...prev];
+            next[idx] = d;
+            return next;
           }
-          return prev.filter(d => d.node_id !== data.node_id);
-        });
+          return [...prev, d];
+        }
+        return prev.filter(dev => dev.node_id !== d.node_id);
       });
     });
   }, []);
