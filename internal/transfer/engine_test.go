@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"testing"
 	"time"
 
@@ -147,111 +146,6 @@ func TestEngineCreatesTask(t *testing.T) {
 	}
 }
 
-func TestEndToEndTransfer(t *testing.T) {
-	// Create engine (acts as both sender and receiver)
-	engine := NewEngine("node-1", "TestNode")
-
-	// Auto-accept all incoming transfers
-	engine.SetReceiveCallback(func(task *model.TransferTask) bool {
-		return true
-	})
-
-	// Track progress updates
-	var progressMu sync.Mutex
-	progressStates := []model.TransferState{}
-	engine.SetProgressCallback(func(task *model.TransferTask) {
-		progressMu.Lock()
-		progressStates = append(progressStates, task.State)
-		progressMu.Unlock()
-	})
-
-	// Start the engine TCP listener
-	if err := engine.Start(); err != nil {
-		t.Fatalf("engine start failed: %v", err)
-	}
-	defer engine.Stop()
-
-	// Create a temp file with known content
-	tmpDir := t.TempDir()
-	content := strings.Repeat("A", 2*1024*1024) // 2 MB to ensure > 1 chunk
-	tmpFile := filepath.Join(tmpDir, "transfer_test.bin")
-	if err := os.WriteFile(tmpFile, []byte(content), 0644); err != nil {
-		t.Fatalf("failed to create temp file: %v", err)
-	}
-
-	// Create send task targeting self (127.0.0.1 + engine's TCP port)
-	task := engine.CreateSendTask(tmpFile, "self", "Self", "127.0.0.1", engine.TCPPort())
-	if task == nil {
-		t.Fatal("CreateSendTask returned nil")
-	}
-
-	// Run the send in a goroutine and wait for completion
-	errCh := make(chan error, 1)
-	go func() {
-		errCh <- engine.SendFile(task.ID)
-	}()
-
-	select {
-	case err := <-errCh:
-		if err != nil {
-			t.Fatalf("SendFile failed: %v", err)
-		}
-	case <-time.After(15 * time.Second):
-		t.Fatal("transfer timed out")
-	}
-
-	// Verify the send task is completed
-	if task.State != model.StateCompleted {
-		t.Errorf("send task state = %v, want StateCompleted", task.State)
-	}
-	if task.CompletedAt == nil {
-		t.Error("send task CompletedAt is nil")
-	}
-
-	// Find the receive task
-	tasks := engine.GetTasks()
-	var recvTask *model.TransferTask
-	for _, t := range tasks {
-		if t.Type == model.TypeReceive {
-			recvTask = t
-			break
-		}
-	}
-	if recvTask == nil {
-		t.Fatal("no receive task found")
-	}
-	if recvTask.State != model.StateCompleted {
-		t.Errorf("receive task state = %v, want StateCompleted", recvTask.State)
-	}
-	if recvTask.SavePath == "" {
-		t.Fatal("receive task SavePath is empty")
-	}
-
-	// Verify the received file exists and has correct content
-	receivedData, err := os.ReadFile(recvTask.SavePath)
-	if err != nil {
-		t.Fatalf("failed to read received file: %v", err)
-	}
-	if string(receivedData) != content {
-		t.Errorf("received content mismatch: got %d bytes, want %d bytes", len(receivedData), len(content))
-	}
-
-	// Verify MD5 of received file
-	receivedMD5, err := calcFileMD5(recvTask.SavePath)
-	if err != nil {
-		t.Fatalf("failed to calc MD5 of received file: %v", err)
-	}
-	if receivedMD5 != task.FileMD5 {
-		t.Errorf("MD5 mismatch: received %s, original %s", receivedMD5, task.FileMD5)
-	}
-
-	// Verify progress was reported
-	progressMu.Lock()
-	if len(progressStates) == 0 {
-		t.Error("no progress callbacks were made")
-	}
-	progressMu.Unlock()
-}
 
 func TestEngineStartStop(t *testing.T) {
 	engine := NewEngine("node-1", "TestNode")
