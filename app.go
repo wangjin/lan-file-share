@@ -3,25 +3,72 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"local-file-share/internal/discovery"
+	"local-file-share/internal/model"
+	"local-file-share/internal/queue"
+	"local-file-share/internal/transfer"
 )
 
-// App struct
 type App struct {
-	ctx context.Context
+	ctx       context.Context
+	discovery *discovery.Service
+	engine    *transfer.Engine
+	queue     *queue.Manager
 }
 
-// NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
+func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	nodeName := model.GetHostname()
+
+	svc := discovery.NewService(nodeName, 0)
+	if err := svc.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "discovery start failed: %v\n", err)
+		return
+	}
+	a.discovery = svc
+
+	eng := transfer.NewEngine(svc.NodeID(), nodeName)
+	eng.SetProgressCallback(func(task *model.TransferTask) {
+		a.queue.UpdateProgress(task.ID, task.BytesTransferred, task.Speed)
+		if task.IsTerminal() {
+			a.queue.UpdateState(task.ID, task.State)
+		}
+	})
+	if err := eng.Start(); err != nil {
+		fmt.Fprintf(os.Stderr, "engine start failed: %v\n", err)
+		return
+	}
+	a.engine = eng
+
+	svc.SetCallback(func(device *discovery.DeviceEntry, online bool) {
+		runtimeEventsEmit(a.ctx, "device:changed", map[string]interface{}{
+			"node_id": device.NodeID,
+			"name":    device.Name,
+			"ip":      device.IP,
+			"port":    device.Port,
+			"os":      device.OS,
+			"online":  online,
+		})
+	})
+
+	q := queue.NewManager(2)
+	q.SetCallback(func(task *model.TransferTask) {
+		runtimeEventsEmit(a.ctx, "task:changed", task)
+	})
+	a.queue = q
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
+func (a *App) Shutdown(ctx context.Context) {
+	if a.discovery != nil {
+		a.discovery.Stop()
+	}
+	if a.engine != nil {
+		a.engine.Stop()
+	}
 }
