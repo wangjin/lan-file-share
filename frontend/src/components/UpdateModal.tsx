@@ -1,4 +1,5 @@
 import React from 'react';
+import Markdown from 'react-markdown';
 import { UpdateInfo, DownloadProgress, UpdateStatus } from '../hooks/useUpdate';
 
 interface Props {
@@ -44,9 +45,7 @@ export const UpdateModal: React.FC<Props> = ({
 
         {info.body && (
           <div className="update-modal-body">
-            {info.body.split('\n').map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
+            <Markdown>{info.body}</Markdown>
           </div>
         )}
 
