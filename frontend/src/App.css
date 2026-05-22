@@ -119,6 +119,13 @@
   font-weight: 600;
 }
 
+.sidebar-version {
+  padding: 8px 16px 12px;
+  font-size: 11px;
+  color: #484f58;
+  text-align: center;
+}
+
 /* ---------- Device Item ---------- */
 
 .device-item {
