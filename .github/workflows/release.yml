@@ -54,16 +54,16 @@ jobs:
       - name: Generate macOS icon
         run: |
           mkdir -p /tmp/icon.iconset
-          sips -z 16 16 build/appicon.png --out /tmp/icon.iconset/icon_16x16.png
-          sips -z 32 32 build/appicon.png --out /tmp/icon.iconset/icon_16x16@2x.png
-          sips -z 32 32 build/appicon.png --out /tmp/icon.iconset/icon_32x32.png
-          sips -z 64 64 build/appicon.png --out /tmp/icon.iconset/icon_32x32@2x.png
-          sips -z 128 128 build/appicon.png --out /tmp/icon.iconset/icon_128x128.png
-          sips -z 256 256 build/appicon.png --out /tmp/icon.iconset/icon_128x128@2x.png
-          sips -z 256 256 build/appicon.png --out /tmp/icon.iconset/icon_256x256.png
-          sips -z 512 512 build/appicon.png --out /tmp/icon.iconset/icon_256x256@2x.png
-          sips -z 512 512 build/appicon.png --out /tmp/icon.iconset/icon_512x512.png
-          sips -z 1024 1024 build/appicon.png --out /tmp/icon.iconset/icon_512x512@2x.png
+          sips -z 16 16 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_16x16.png
+          sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_16x16@2x.png
+          sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_32x32.png
+          sips -z 64 64 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_128x128.png
+          sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_256x256.png
+          sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_256x256@2x.png
+          sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_512x512.png
+          sips -z 1024 1024 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_512x512@2x.png
           iconutil -c icns /tmp/icon.iconset -o build/darwin/icons.icns
       - run: task package:darwin
       - name: Compress macOS .app
@@ -87,6 +87,13 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
+          body: |
+            ## macOS 使用说明
+            下载解压后，如果提示"无法打开"或"已损坏"，请在终端执行：
+            ```bash
+            xattr -cr /path/to/lan-file-share.app
+            ```
+            然后即可正常双击打开。
           files: |
             artifacts/lan-file-share-windows-amd64/*.exe
             artifacts/lan-file-share-macos/*.tar.gz
