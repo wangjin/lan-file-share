@@ -75,3 +75,51 @@ func (a *App) CancelTask(taskID string) error {
 func (a *App) GetTasks() []*model.TransferTask {
 	return a.queue.GetAll()
 }
+
+func (a *App) SendPaths(peerID string, paths []string) error {
+	if a.engine == nil || a.discovery == nil {
+		return fmt.Errorf("service not initialized")
+	}
+
+	devices := a.discovery.GetDevices()
+	var peer *discovery.DeviceEntry
+	for _, d := range devices {
+		if d.NodeID == peerID {
+			peer = d
+			break
+		}
+	}
+	if peer == nil {
+		return fmt.Errorf("device not found: %s", peerID)
+	}
+
+	for _, p := range paths {
+		info, err := os.Stat(p)
+		if err != nil {
+			continue
+		}
+
+		filePath := p
+		if info.IsDir() {
+			zp, err := zipDir(p)
+			if err != nil {
+				continue
+			}
+			filePath = zp
+		}
+
+		task := a.engine.CreateSendTask(filePath, peer.NodeID, peer.Name, peer.IP, peer.Port)
+		if task == nil {
+			continue
+		}
+		a.queue.Add(task)
+
+		go func(taskID string) {
+			if err := a.engine.SendFile(taskID); err != nil {
+				fmt.Fprintf(os.Stderr, "send failed: %v\n", err)
+			}
+		}(task.ID)
+	}
+
+	return nil
+}
