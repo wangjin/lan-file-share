@@ -8,6 +8,8 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
+var version = "dev"
+
 //go:embed all:frontend/dist
 var assets embed.FS
 
