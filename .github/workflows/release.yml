@@ -92,39 +92,36 @@ jobs:
             RANGE="$PREV_TAG..HEAD"
           fi
 
+          NOTES=""
+          NOTES="${NOTES}## ✨ 新功能$(printf '\n')"
+          FEATS=$(git log "$RANGE" --format="- %s" --grep="^feat" -i || true)
+          if [ -n "$FEATS" ]; then
+            NOTES="${NOTES}${FEATS}$(printf '\n\n')"
+          fi
+
+          NOTES="${NOTES}## 🐛 修复$(printf '\n')"
+          FIXES=$(git log "$RANGE" --format="- %s" --grep="^fix" -i || true)
+          if [ -n "$FIXES" ]; then
+            NOTES="${NOTES}${FIXES}$(printf '\n\n')"
+          fi
+
+          NOTES="${NOTES}## 📦 下载$(printf '\n')"
+          NOTES="${NOTES}| 平台 | 文件 |$(printf '\n')"
+          NOTES="${NOTES}|------|------|$(printf '\n')"
+          NOTES="${NOTES}| macOS | \`lan-file-share-macos.dmg\` |$(printf '\n')"
+          NOTES="${NOTES}| Windows | \`lan-file-share-windows-amd64.exe\` |$(printf '\n\n')"
+          NOTES="${NOTES}## 💻 macOS 使用说明$(printf '\n')"
+          NOTES="${NOTES}双击打开 .dmg 文件，将 LAN File Share 拖入 Applications 文件夹即可。$(printf '\n')"
+          NOTES="${NOTES}如果提示“无法打开”或“已损坏”，请在终端执行：$(printf '\n')"
+          NOTES="${NOTES}\`\`\`bash$(printf '\n')"
+          NOTES="${NOTES}xattr -cr /path/to/lan-file-share.app$(printf '\n')"
+          NOTES="${NOTES}\`\`\`$(printf '\n')"
+          NOTES="${NOTES}然后即可正常双击打开。$(printf '\n')"
+
           {
-            echo "body<<EOF"
-
-            FEATS=$(git log "$RANGE" --format="- %s" --grep="^feat" -i || true)
-            if [ -n "$FEATS" ]; then
-              echo "## ✨ 新功能"
-              echo "$FEATS"
-              echo ""
-            fi
-
-            FIXES=$(git log "$RANGE" --format="- %s" --grep="^fix" -i || true)
-            if [ -n "$FIXES" ]; then
-              echo "## 🐛 修复"
-              echo "$FIXES"
-              echo ""
-            fi
-
-            echo "## 📦 下载"
-            echo "| 平台 | 文件 |"
-            echo "|------|------|"
-            echo "| macOS | \`lan-file-share-macos.dmg\` |"
-            echo "| Windows | \`lan-file-share-windows-amd64.exe\` |"
-            echo ""
-
-            echo "## 💻 macOS 使用说明"
-            echo "双击打开 .dmg 文件，将 LAN File Share 拖入 Applications 文件夹即可。"
-            echo "如果提示\"无法打开\"或\"已损坏\"，请在终端执行："
-            echo '```bash'
-            echo "xattr -cr /path/to/lan-file-share.app"
-            echo '```"
-            echo "然后即可正常双击打开。"
-
-            echo "EOF"
+            echo "body<<RELEASEEOF"
+            echo "$NOTES"
+            echo "RELEASEEOF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
