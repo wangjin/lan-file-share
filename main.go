@@ -11,10 +11,14 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+//go:embed frontend/src/assets/images/logo.png
+var iconData []byte
+
 func main() {
 	app := application.New(application.Options{
 		Name:        "LAN File Share",
 		Description: "LAN File Sharing Application",
+		Icon:        iconData,
 		Services: []application.Service{
 			application.NewService(NewApp()),
 		},
@@ -32,6 +36,9 @@ func main() {
 		Height:          680,
 		DevToolsEnabled: true,
 		EnableFileDrop:  true,
+		Linux: application.LinuxWindow{
+			Icon: iconData,
+		},
 	})
 
 	win.OnWindowEvent(events.Common.WindowFilesDropped, func(event *application.WindowEvent) {
