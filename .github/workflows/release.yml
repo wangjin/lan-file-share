@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - “v*”
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: “1.26”
       - name: Install Wails Linux dependencies
         run: |
           sudo apt-get update
@@ -33,10 +33,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: “1.26”
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: “22”
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: go-tools-wails3-${{ runner.os }}-${{ hashFiles('go.sum') }}
       - run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
       - run: go install github.com/go-task/task/v3/cmd/task@latest
       - run: task package:windows
@@ -52,10 +58,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: “1.26”
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: “22”
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: go-tools-wails3-${{ runner.os }}-${{ hashFiles('go.sum') }}
       - run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
       - run: go install github.com/go-task/task/v3/cmd/task@latest
       - run: task package:darwin
@@ -64,7 +76,7 @@ jobs:
           mkdir -p /tmp/dmg-content
           cp -R build/bin/Nearfy.app /tmp/dmg-content/
           ln -s /Applications /tmp/dmg-content/Applications
-          hdiutil create -volname "Nearfy" -srcfolder /tmp/dmg-content -ov -format UDZO build/bin/Nearfy-macos.dmg
+          hdiutil create -volname “Nearfy” -srcfolder /tmp/dmg-content -ov -format UDZO build/bin/Nearfy-macos.dmg
       - uses: actions/upload-artifact@v4
         with:
           name: Nearfy-macos
@@ -86,43 +98,45 @@ jobs:
         id: notes
         run: |
           PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
-          if [ -z "$PREV_TAG" ]; then
-            RANGE="HEAD"
+          if [ -z “$PREV_TAG” ]; then
+            RANGE=”HEAD”
           else
-            RANGE="$PREV_TAG..HEAD"
+            RANGE=”$PREV_TAG..HEAD”
           fi
 
-          NOTES=””
-          NOTES=”${NOTES}## ✨ 新功能$(printf '\n\n')”
+          NL=$(printf '\n')
+          BL=$(printf '\n\n')
+
+          NOTES=”## ✨ 新功能${BL}”
           FEATS=$(git log “$RANGE” --format=”- %s” --grep=”^feat” -i || true)
           if [ -n “$FEATS” ]; then
-            NOTES=”${NOTES}${FEATS}$(printf '\n\n')”
+            NOTES=”${NOTES}${FEATS}${BL}”
           fi
 
-          NOTES=”${NOTES}## 🐛 修复$(printf '\n\n')”
+          NOTES=”${NOTES}## 🐛 修复${BL}”
           FIXES=$(git log “$RANGE” --format=”- %s” --grep=”^fix” -i || true)
           if [ -n “$FIXES” ]; then
-            NOTES=”${NOTES}${FIXES}$(printf '\n\n')”
+            NOTES=”${NOTES}${FIXES}${BL}”
           fi
 
-          NOTES=”${NOTES}## 📦 下载$(printf '\n\n')”
-          NOTES=”${NOTES}| 平台 | 文件 |$(printf '\n')”
-          NOTES=”${NOTES}|------|------|$(printf '\n')”
-          NOTES=”${NOTES}| macOS | \`Nearfy-macos.dmg\` |$(printf '\n')”
-          NOTES=”${NOTES}| Windows | \`Nearfy-windows-amd64.exe\` |$(printf '\n\n')”
-          NOTES=”${NOTES}## 💻 macOS 使用说明$(printf '\n\n')”
-          NOTES=”${NOTES}双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。$(printf '\n')”
-          NOTES=”${NOTES}如果提示”无法打开”或”已损坏”，请在终端执行：$(printf '\n\n')”
-          NOTES=”${NOTES}\`\`\`bash$(printf '\n')”
-          NOTES=”${NOTES}xattr -cr /path/to/Nearfy.app$(printf '\n')”
-          NOTES=”${NOTES}\`\`\`$(printf '\n\n')”
-          NOTES=”${NOTES}然后即可正常双击打开。$(printf '\n')”
+          NOTES=”${NOTES}## 📦 下载${BL}”
+          NOTES=”${NOTES}| 平台 | 文件 |${NL}”
+          NOTES=”${NOTES}|------|------|${NL}”
+          NOTES=”${NOTES}| macOS | \`Nearfy-macos.dmg\` |${NL}”
+          NOTES=”${NOTES}| Windows | \`Nearfy-windows-amd64.exe\` |${BL}”
+          NOTES=”${NOTES}## 💻 macOS 使用说明${BL}”
+          NOTES=”${NOTES}双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。${NL}”
+          NOTES=”${NOTES}如果提示”无法打开”或”已损坏”，请在终端执行：${BL}”
+          NOTES=”${NOTES}\`\`\`bash${NL}”
+          NOTES=”${NOTES}xattr -cr /path/to/Nearfy.app${NL}”
+          NOTES=”${NOTES}\`\`\`${BL}”
+          NOTES=”${NOTES}然后即可正常双击打开。${NL}”
 
           {
-            echo "body<<RELEASEEOF"
-            echo "$NOTES"
-            echo "RELEASEEOF"
-          } >> "$GITHUB_OUTPUT"
+            echo “body<<RELEASEEOF”
+            echo “$NOTES”
+            echo “RELEASEEOF”
+          } >> “$GITHUB_OUTPUT”
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

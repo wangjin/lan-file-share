@@ -22,6 +22,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-4-dev libwebkitgtk-6.0-dev libsoup-3.0-dev
 
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: go-tools-task-${{ runner.os }}-${{ hashFiles('go.sum') }}
+
       - name: Install Taskfile
         run: go install github.com/go-task/task/v3/cmd/task@latest
 
