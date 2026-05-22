@@ -92,31 +92,31 @@ jobs:
             RANGE="$PREV_TAG..HEAD"
           fi
 
-          NOTES=""
-          NOTES="${NOTES}## ✨ 新功能$(printf '\n')"
-          FEATS=$(git log "$RANGE" --format="- %s" --grep="^feat" -i || true)
-          if [ -n "$FEATS" ]; then
-            NOTES="${NOTES}${FEATS}$(printf '\n\n')"
+          NOTES=””
+          NOTES=”${NOTES}## ✨ 新功能$(printf '\n\n')”
+          FEATS=$(git log “$RANGE” --format=”- %s” --grep=”^feat” -i || true)
+          if [ -n “$FEATS” ]; then
+            NOTES=”${NOTES}${FEATS}$(printf '\n\n')”
           fi
 
-          NOTES="${NOTES}## 🐛 修复$(printf '\n')"
-          FIXES=$(git log "$RANGE" --format="- %s" --grep="^fix" -i || true)
-          if [ -n "$FIXES" ]; then
-            NOTES="${NOTES}${FIXES}$(printf '\n\n')"
+          NOTES=”${NOTES}## 🐛 修复$(printf '\n\n')”
+          FIXES=$(git log “$RANGE” --format=”- %s” --grep=”^fix” -i || true)
+          if [ -n “$FIXES” ]; then
+            NOTES=”${NOTES}${FIXES}$(printf '\n\n')”
           fi
 
-          NOTES="${NOTES}## 📦 下载$(printf '\n')"
-          NOTES="${NOTES}| 平台 | 文件 |$(printf '\n')"
-          NOTES="${NOTES}|------|------|$(printf '\n')"
-          NOTES="${NOTES}| macOS | \`Nearfy-macos.dmg\` |$(printf '\n')"
-          NOTES="${NOTES}| Windows | \`Nearfy-windows-amd64.exe\` |$(printf '\n\n')"
-          NOTES="${NOTES}## 💻 macOS 使用说明$(printf '\n')"
-          NOTES="${NOTES}双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。$(printf '\n')"
-          NOTES="${NOTES}如果提示“无法打开”或“已损坏”，请在终端执行：$(printf '\n')"
-          NOTES="${NOTES}\`\`\`bash$(printf '\n')"
-          NOTES="${NOTES}xattr -cr /path/to/Nearfy.app$(printf '\n')"
-          NOTES="${NOTES}\`\`\`$(printf '\n')"
-          NOTES="${NOTES}然后即可正常双击打开。$(printf '\n')"
+          NOTES=”${NOTES}## 📦 下载$(printf '\n\n')”
+          NOTES=”${NOTES}| 平台 | 文件 |$(printf '\n')”
+          NOTES=”${NOTES}|------|------|$(printf '\n')”
+          NOTES=”${NOTES}| macOS | \`Nearfy-macos.dmg\` |$(printf '\n')”
+          NOTES=”${NOTES}| Windows | \`Nearfy-windows-amd64.exe\` |$(printf '\n\n')”
+          NOTES=”${NOTES}## 💻 macOS 使用说明$(printf '\n\n')”
+          NOTES=”${NOTES}双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。$(printf '\n')”
+          NOTES=”${NOTES}如果提示”无法打开”或”已损坏”，请在终端执行：$(printf '\n\n')”
+          NOTES=”${NOTES}\`\`\`bash$(printf '\n')”
+          NOTES=”${NOTES}xattr -cr /path/to/Nearfy.app$(printf '\n')”
+          NOTES=”${NOTES}\`\`\`$(printf '\n\n')”
+          NOTES=”${NOTES}然后即可正常双击打开。$(printf '\n')”
 
           {
             echo "body<<RELEASEEOF"
