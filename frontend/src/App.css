@@ -537,3 +537,40 @@ button:focus-visible {
   background: rgba(91, 141, 239, 0.3);
   color: #e6edf3;
 }
+
+/* ---------- Drop Zone Overlay ---------- */
+
+.transfer-panel {
+  position: relative;
+}
+
+.dropzone-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  z-index: 10;
+  pointer-events: none;
+  animation: dropzone-fade-in 0.15s ease-out;
+}
+
+.dropzone-overlay.active {
+  background: rgba(91, 141, 239, 0.08);
+  border: 2px dashed #5b8def;
+  color: #5b8def;
+}
+
+.dropzone-overlay.disabled {
+  background: rgba(139, 148, 158, 0.06);
+  border: 2px dashed #30363d;
+  color: #8b949e;
+}
+
+@keyframes dropzone-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

@@ -5,18 +5,28 @@ import { TransferItem } from './TransferItem';
 interface Props {
   tasks: TransferTask[];
   peerId: string | null;
+  deviceName: string | undefined;
   onCancel: (id: string) => void;
   onRespond: (id: string, accept: boolean) => void;
+  isDragging: boolean;
+  dropHandlers: {
+    onDragEnter: (e: React.DragEvent) => void;
+    onDragOver: (e: React.DragEvent) => void;
+    onDragLeave: (e: React.DragEvent) => void;
+    onDrop: (e: React.DragEvent) => void;
+  };
 }
 
-export const TransferPanel: React.FC<Props> = ({ tasks, peerId, onCancel, onRespond }) => {
+export const TransferPanel: React.FC<Props> = ({
+  tasks, peerId, deviceName, onCancel, onRespond, isDragging, dropHandlers,
+}) => {
   const filtered = peerId ? tasks.filter(t => t.peer_id === peerId) : tasks;
   const active = filtered.filter(t => taskStateName(t.state) === 'transferring');
   const waiting = filtered.filter(t => taskStateName(t.state) === 'pending');
   const done = filtered.filter(t => ['completed', 'failed', 'cancelled'].includes(taskStateName(t.state)));
 
   return (
-    <div className="transfer-panel">
+    <div className="transfer-panel" {...dropHandlers}>
       {active.length > 0 && (
         <div className="section">
           <div className="section-title">传输中 ({active.length})</div>
@@ -35,8 +45,17 @@ export const TransferPanel: React.FC<Props> = ({ tasks, peerId, onCancel, onResp
           {done.map(t => <TransferItem key={t.id} task={t} onCancel={onCancel} onRespond={onRespond} />)}
         </div>
       )}
-      {!active.length && !waiting.length && !done.length && (
+      {!active.length && !waiting.length && !done.length && !isDragging && (
         <div className="empty">暂无传输任务</div>
+      )}
+      {isDragging && (
+        <div className={`dropzone-overlay ${peerId ? 'active' : 'disabled'}`}>
+          {peerId ? (
+            <span>释放以发送到 {deviceName}</span>
+          ) : (
+            <span>请先选择一个设备</span>
+          )}
+        </div>
       )}
     </div>
   );
