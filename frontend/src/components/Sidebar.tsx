@@ -1,6 +1,7 @@
 import React from 'react';
 import { Device } from '../hooks/useDevices';
 import { DeviceItem } from './DeviceItem';
+import logo from '../assets/images/logo.png';
 
 interface Props {
   devices: Device[];
@@ -12,7 +13,7 @@ interface Props {
 export const Sidebar: React.FC<Props> = ({ devices, localInfo, selectedPeerId, onSelectDevice }) => (
   <div className="sidebar">
     <div className="local-info">
-      <div className="avatar">{localInfo?.name?.[0] || '?'}</div>
+      <img className="avatar" src={logo} alt="" />
       <div className="info">
         <div className="name">{localInfo?.name}</div>
         <div className="status online">在线</div>

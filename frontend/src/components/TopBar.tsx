@@ -1,5 +1,6 @@
 import React from 'react';
 import { Device } from '../hooks/useDevices';
+import logo from '../assets/images/logo.png';
 
 interface Props {
   device: Device | undefined;
@@ -11,6 +12,7 @@ export const TopBar: React.FC<Props> = ({ device, onSendFile }) => {
   return (
     <div className="topbar">
       <div className="peer-info">
+        <img className="peer-logo" src={logo} alt="" />
         <span className="peer-name">{device.name}</span>
         <span className="peer-ip">{device.ip}</span>
       </div>
