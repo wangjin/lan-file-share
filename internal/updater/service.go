@@ -156,7 +156,7 @@ func (s *Service) StartDownload() error {
 	s.cancelDownload = cancel
 	s.mu.Unlock()
 
-	destDir := filepath.Join(os.TempDir(), "lan-file-share-update")
+	destDir := filepath.Join(os.TempDir(), "nearfy-update")
 	go func() {
 		defer cancel()
 		path, err := DownloadFile(asset.URL, destDir, func(p ProgressReport) {

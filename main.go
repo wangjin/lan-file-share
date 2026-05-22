@@ -7,7 +7,7 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
 
-	"lan-file-share/internal/updater"
+	"nearfy/internal/updater"
 )
 
 var version = "dev"
@@ -20,12 +20,12 @@ var iconData []byte
 
 func main() {
 	app := application.New(application.Options{
-		Name:        "LAN File Share",
+		Name:        "Nearfy",
 		Description: "LAN File Sharing Application",
 		Icon:        iconData,
 		Services: []application.Service{
 			application.NewService(NewApp()),
-			application.NewService(updater.NewService(version, "wangjin/lan-file-share")),
+			application.NewService(updater.NewService(version, "wangjin/Nearfy")),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.BundledAssetFileServer(assets),
@@ -36,7 +36,7 @@ func main() {
 	})
 
 	win := app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:           "LAN File Share",
+		Title:           "Nearfy",
 		Width:           1024,
 		Height:          680,
 		DevToolsEnabled: true,

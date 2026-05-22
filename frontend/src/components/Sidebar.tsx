@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Device } from '../hooks/useDevices';
 import { DeviceItem } from './DeviceItem';
-import { GetVersion } from '../../bindings/lan-file-share/internal/updater/service.js';
+import { GetVersion } from '../../bindings/nearfy/internal/updater/service.js';
 import logo from '../assets/images/logo.png';
 
 interface Props {

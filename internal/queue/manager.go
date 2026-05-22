@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"lan-file-share/internal/model"
+	"nearfy/internal/model"
 )
 
 type StateChangeCallback func(task *model.TransferTask)

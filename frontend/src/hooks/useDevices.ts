@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Events } from '@wailsio/runtime';
-import { GetLocalInfo, GetDevices } from '../../bindings/lan-file-share/app.js';
+import { GetLocalInfo, GetDevices } from '../../bindings/nearfy/app.js';
 
 export interface Device {
   node_id: string;

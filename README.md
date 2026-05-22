@@ -1,4 +1,4 @@
-# LAN File Share
+# Nearfy
 
 局域网文件传输工具，基于 Wails v3 构建，支持 macOS 和 Windows。
 
@@ -21,19 +21,19 @@
 
 ## 下载
 
-从 [GitHub Releases](https://github.com/wangjin/lan-file-share/releases/latest) 下载最新版本。
+从 [GitHub Releases](https://github.com/wangjin/Nearfy/releases/latest) 下载最新版本。
 
 | 平台 | 文件 |
 |------|------|
-| macOS | `lan-file-share-macos.dmg` |
-| Windows | `lan-file-share-windows-amd64.exe` |
+| macOS | `Nearfy-macos.dmg` |
+| Windows | `Nearfy-windows-amd64.exe` |
 
 ### macOS 使用说明
 
-双击打开 .dmg 文件，将 LAN File Share 拖入 Applications 文件夹即可。如果提示"无法打开"或"已损坏"，请在终端执行：
+双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。如果提示"无法打开"或"已损坏"，请在终端执行：
 
 ```bash
-xattr -cr /path/to/lan-file-share.app
+xattr -cr /path/to/Nearfy.app
 ```
 
 ## 开发

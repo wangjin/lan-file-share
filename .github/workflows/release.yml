@@ -42,8 +42,8 @@ jobs:
       - run: task package:windows
       - uses: actions/upload-artifact@v4
         with:
-          name: lan-file-share-windows-amd64
-          path: build/bin/lan-file-share-windows-amd64.exe
+          name: Nearfy-windows-amd64
+          path: build/bin/Nearfy-windows-amd64.exe
 
   build-macos:
     needs: test
@@ -62,13 +62,13 @@ jobs:
       - name: Create macOS .dmg
         run: |
           mkdir -p /tmp/dmg-content
-          cp -R build/bin/lan-file-share.app /tmp/dmg-content/
+          cp -R build/bin/Nearfy.app /tmp/dmg-content/
           ln -s /Applications /tmp/dmg-content/Applications
-          hdiutil create -volname "LAN File Share" -srcfolder /tmp/dmg-content -ov -format UDZO build/bin/lan-file-share-macos.dmg
+          hdiutil create -volname "Nearfy" -srcfolder /tmp/dmg-content -ov -format UDZO build/bin/Nearfy-macos.dmg
       - uses: actions/upload-artifact@v4
         with:
-          name: lan-file-share-macos
-          path: build/bin/lan-file-share-macos.dmg
+          name: Nearfy-macos
+          path: build/bin/Nearfy-macos.dmg
 
   release:
     needs: [build-windows, build-macos]
@@ -108,13 +108,13 @@ jobs:
           NOTES="${NOTES}## 📦 下载$(printf '\n')"
           NOTES="${NOTES}| 平台 | 文件 |$(printf '\n')"
           NOTES="${NOTES}|------|------|$(printf '\n')"
-          NOTES="${NOTES}| macOS | \`lan-file-share-macos.dmg\` |$(printf '\n')"
-          NOTES="${NOTES}| Windows | \`lan-file-share-windows-amd64.exe\` |$(printf '\n\n')"
+          NOTES="${NOTES}| macOS | \`Nearfy-macos.dmg\` |$(printf '\n')"
+          NOTES="${NOTES}| Windows | \`Nearfy-windows-amd64.exe\` |$(printf '\n\n')"
           NOTES="${NOTES}## 💻 macOS 使用说明$(printf '\n')"
-          NOTES="${NOTES}双击打开 .dmg 文件，将 LAN File Share 拖入 Applications 文件夹即可。$(printf '\n')"
+          NOTES="${NOTES}双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。$(printf '\n')"
           NOTES="${NOTES}如果提示“无法打开”或“已损坏”，请在终端执行：$(printf '\n')"
           NOTES="${NOTES}\`\`\`bash$(printf '\n')"
-          NOTES="${NOTES}xattr -cr /path/to/lan-file-share.app$(printf '\n')"
+          NOTES="${NOTES}xattr -cr /path/to/Nearfy.app$(printf '\n')"
           NOTES="${NOTES}\`\`\`$(printf '\n')"
           NOTES="${NOTES}然后即可正常双击打开。$(printf '\n')"
 
@@ -129,5 +129,5 @@ jobs:
         with:
           body: ${{ steps.notes.outputs.body }}
           files: |
-            artifacts/lan-file-share-windows-amd64/*.exe
-            artifacts/lan-file-share-macos/*.dmg
+            artifacts/Nearfy-windows-amd64/*.exe
+            artifacts/Nearfy-macos/*.dmg

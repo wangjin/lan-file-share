@@ -1,6 +1,6 @@
 package main
 
-import "lan-file-share/internal/model"
+import "nearfy/internal/model"
 
 func (a *App) GetDevices() []map[string]interface{} {
 	if a.discovery == nil {

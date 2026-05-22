@@ -34,7 +34,7 @@ func installMacOS(downloadPath string) error {
 		return err
 	}
 
-	mountPoint := filepath.Join(os.TempDir(), "lan-file-share-dmg")
+	mountPoint := filepath.Join(os.TempDir(), "nearfy-dmg")
 	os.RemoveAll(mountPoint)
 
 	cmd := exec.Command("hdiutil", "attach", downloadPath, "-mountpoint", mountPoint, "-nobrowse", "-quiet")
@@ -91,7 +91,7 @@ start "" "%s"
 del "%%~f0"
 `, pid, pid, downloadPath, abs, abs)
 
-	batPath := filepath.Join(os.TempDir(), "lan-file-share-update.bat")
+	batPath := filepath.Join(os.TempDir(), "nearfy-update.bat")
 	if err := os.WriteFile(batPath, []byte(bat), 0644); err != nil {
 		return fmt.Errorf("write bat: %w", err)
 	}

@@ -16,8 +16,8 @@ func TestCheckLatestRelease(t *testing.T) {
 			"tag_name": "v2.0.0",
 			"body": "Bug fixes and improvements",
 			"assets": [
-				{"name": "lan-file-share-macos.dmg", "browser_download_url": "https://example.com/macos.tar.gz", "size": 12345},
-				{"name": "lan-file-share-windows-amd64.exe", "browser_download_url": "https://example.com/win.exe", "size": 67890}
+				{"name": "Nearfy-macos.dmg", "browser_download_url": "https://example.com/macos.tar.gz", "size": 12345},
+				{"name": "Nearfy-windows-amd64.exe", "browser_download_url": "https://example.com/win.exe", "size": 67890}
 			]
 		}`))
 	}))
@@ -36,7 +36,7 @@ func TestCheckLatestRelease(t *testing.T) {
 	if len(info.Assets) != 2 {
 		t.Fatalf("len(Assets) = %d, want 2", len(info.Assets))
 	}
-	if info.Assets[0].Name != "lan-file-share-macos.dmg" {
+	if info.Assets[0].Name != "Nearfy-macos.dmg" {
 		t.Errorf("Asset[0].Name = %q", info.Assets[0].Name)
 	}
 	if info.Assets[0].Size != 12345 {
@@ -59,8 +59,8 @@ func TestCheckLatestRelease_NotFound(t *testing.T) {
 func TestFindAsset(t *testing.T) {
 	info := &ReleaseInfo{
 		Assets: []Asset{
-			{Name: "lan-file-share-macos.dmg", URL: "https://example.com/macos.tar.gz", Size: 12345},
-			{Name: "lan-file-share-windows-amd64.exe", URL: "https://example.com/win.exe", Size: 67890},
+			{Name: "Nearfy-macos.dmg", URL: "https://example.com/macos.tar.gz", Size: 12345},
+			{Name: "Nearfy-windows-amd64.exe", URL: "https://example.com/win.exe", Size: 67890},
 		},
 	}
 
@@ -69,8 +69,8 @@ func TestFindAsset(t *testing.T) {
 		wantName string
 		wantOK   bool
 	}{
-		{"darwin", "lan-file-share-macos.dmg", true},
-		{"windows", "lan-file-share-windows-amd64.exe", true},
+		{"darwin", "Nearfy-macos.dmg", true},
+		{"windows", "Nearfy-windows-amd64.exe", true},
 		{"linux", "", false},
 	}
 

@@ -38,7 +38,7 @@ func DownloadFile(url, destDir string, onProgress ProgressCallback, opts ...Down
 	if err != nil {
 		return "", fmt.Errorf("create request: %w", err)
 	}
-	req.Header.Set("User-Agent", "lan-file-share-updater")
+	req.Header.Set("User-Agent", "nearfy-updater")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {

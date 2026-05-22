@@ -7,10 +7,10 @@ import (
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 
-	"lan-file-share/internal/discovery"
-	"lan-file-share/internal/model"
-	"lan-file-share/internal/queue"
-	"lan-file-share/internal/transfer"
+	"nearfy/internal/discovery"
+	"nearfy/internal/model"
+	"nearfy/internal/queue"
+	"nearfy/internal/transfer"
 )
 
 type App struct {

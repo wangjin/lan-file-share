@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Events } from '@wailsio/runtime';
-import { GetTasks, SelectAndSend, RespondReceive, ChooseSavePath, CancelTask } from '../../bindings/lan-file-share/app.js';
-import { TransferTask } from '../../bindings/lan-file-share/internal/model/models.js';
+import { GetTasks, SelectAndSend, RespondReceive, ChooseSavePath, CancelTask } from '../../bindings/nearfy/app.js';
+import { TransferTask } from '../../bindings/nearfy/internal/model/models.js';
 
 export type { TransferTask };
 

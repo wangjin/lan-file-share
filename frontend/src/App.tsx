@@ -3,13 +3,13 @@ import { useDevices } from './hooks/useDevices';
 import { useTransfers } from './hooks/useTransfers';
 import { useDragDrop } from './hooks/useDragDrop';
 import { useUpdate } from './hooks/useUpdate';
-import { SendPaths } from '../bindings/lan-file-share/app.js';
+import { SendPaths } from '../bindings/nearfy/app.js';
 import {
   StartDownload,
   CancelDownload,
   InstallAndRestart,
   OpenReleasePage,
-} from '../bindings/lan-file-share/internal/updater/service.js';
+} from '../bindings/nearfy/internal/updater/service.js';
 import { Sidebar } from './components/Sidebar';
 import { TopBar } from './components/TopBar';
 import { TransferPanel } from './components/TransferPanel';

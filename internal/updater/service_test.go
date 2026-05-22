@@ -23,7 +23,7 @@ func TestService_CheckUpdate_NewAvailable(t *testing.T) {
 			"tag_name": "v99.0.0",
 			"body": "Test release",
 			"assets": [
-				{"name": "lan-file-share-macos.tar.gz", "browser_download_url": "http://example.com/macos.tar.gz", "size": 100}
+				{"name": "Nearfy-macos.tar.gz", "browser_download_url": "http://example.com/macos.tar.gz", "size": 100}
 			]
 		}`))
 	}))

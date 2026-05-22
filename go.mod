@@ -1,4 +1,4 @@
-module lan-file-share
+module nearfy
 
 go 1.25.0
 

@@ -28,9 +28,9 @@ func (r *ReleaseInfo) FindAsset(goos string) (*Asset, bool) {
 	var prefix string
 	switch goos {
 	case "darwin":
-		prefix = "lan-file-share-macos"
+		prefix = "Nearfy-macos"
 	case "windows":
-		prefix = "lan-file-share-windows"
+		prefix = "Nearfy-windows"
 	default:
 		return nil, false
 	}
@@ -49,7 +49,7 @@ func checkLatestRelease(baseURL, repo string) (*ReleaseInfo, error) {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/vnd.github+json")
-	req.Header.Set("User-Agent", "lan-file-share-updater")
+	req.Header.Set("User-Agent", "nearfy-updater")
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -97,9 +97,9 @@ func CheckForUpdate(currentVersion, repo string) (*ReleaseInfo, bool, error) {
 func PlatformAssetName() string {
 	switch runtime.GOOS {
 	case "darwin":
-		return "lan-file-share-macos.dmg"
+		return "Nearfy-macos.dmg"
 	case "windows":
-		return "lan-file-share-windows-amd64.exe"
+		return "Nearfy-windows-amd64.exe"
 	default:
 		return ""
 	}

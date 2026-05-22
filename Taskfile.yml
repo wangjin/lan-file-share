@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  APP_NAME: lan-file-share
+  APP_NAME: Nearfy
   FRONTEND_DIR: frontend
   BUILD_DIR: build/bin
   BINDINGS_DIR: frontend/bindings
@@ -155,19 +155,19 @@ tasks:
     desc: Generate macOS .icns icon from logo.png
     internal: true
     cmds:
-      - mkdir -p /tmp/lan-file-share-icon.iconset
-      - sips -z 16 16 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_16x16.png
-      - sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_16x16@2x.png
-      - sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_32x32.png
-      - sips -z 64 64 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_32x32@2x.png
-      - sips -z 128 128 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_128x128.png
-      - sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_128x128@2x.png
-      - sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_256x256.png
-      - sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_256x256@2x.png
-      - sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_512x512.png
-      - sips -z 1024 1024 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_512x512@2x.png
+      - mkdir -p /tmp/nearfy-icon.iconset
+      - sips -z 16 16 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_16x16.png
+      - sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_16x16@2x.png
+      - sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_32x32.png
+      - sips -z 64 64 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_32x32@2x.png
+      - sips -z 128 128 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_128x128.png
+      - sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_128x128@2x.png
+      - sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_256x256.png
+      - sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_256x256@2x.png
+      - sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_512x512.png
+      - sips -z 1024 1024 frontend/src/assets/images/logo.png --out /tmp/nearfy-icon.iconset/icon_512x512@2x.png
       - mkdir -p build/darwin
-      - iconutil -c icns /tmp/lan-file-share-icon.iconset -o build/darwin/icons.icns
+      - iconutil -c icns /tmp/nearfy-icon.iconset -o build/darwin/icons.icns
     sources:
       - frontend/src/assets/images/logo.png
     generates:
@@ -187,13 +187,13 @@ tasks:
         <plist version="1.0">
         <dict>
           <key>CFBundleExecutable</key>
-          <string>lan-file-share</string>
+          <string>Nearfy</string>
           <key>CFBundleIdentifier</key>
-          <string>com.ieemoo.lan-file-share</string>
+          <string>com.ieemoo.nearfy</string>
           <key>CFBundleName</key>
-          <string>LAN File Share</string>
+          <string>Nearfy</string>
           <key>CFBundleDisplayName</key>
-          <string>LAN File Share</string>
+          <string>Nearfy</string>
           <key>CFBundleVersion</key>
           <string>{{.VERSION}}</string>
           <key>CFBundleShortVersionString</key>
@@ -238,7 +238,7 @@ tasks:
       - mkdir -p /tmp/{{.APP_NAME}}-dmg
       - cp -R {{.BUILD_DIR}}/{{.APP_NAME}}.app /tmp/{{.APP_NAME}}-dmg/
       - ln -sf /Applications /tmp/{{.APP_NAME}}-dmg/Applications
-      - hdiutil create -volname "LAN File Share" -srcfolder /tmp/{{.APP_NAME}}-dmg -ov -format UDZO {{.BUILD_DIR}}/{{.APP_NAME}}-macos.dmg
+      - hdiutil create -volname "Nearfy" -srcfolder /tmp/{{.APP_NAME}}-dmg -ov -format UDZO {{.BUILD_DIR}}/{{.APP_NAME}}-macos.dmg
     generates:
       - "{{.BUILD_DIR}}/{{.APP_NAME}}-macos.dmg"
 

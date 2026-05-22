@@ -3,7 +3,7 @@ package transfer
 import (
 	"testing"
 
-	"lan-file-share/internal/model"
+	"nearfy/internal/model"
 )
 
 func TestValidTransitions(t *testing.T) {

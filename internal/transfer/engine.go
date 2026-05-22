@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"lan-file-share/internal/model"
-	"lan-file-share/internal/protocol"
+	"nearfy/internal/model"
+	"nearfy/internal/protocol"
 
 	"github.com/google/uuid"
 )

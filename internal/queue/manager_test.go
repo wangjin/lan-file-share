@@ -3,7 +3,7 @@ package queue
 import (
 	"testing"
 
-	"lan-file-share/internal/model"
+	"nearfy/internal/model"
 )
 
 func TestAddTask(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"lan-file-share/internal/discovery"
-	"lan-file-share/internal/model"
+	"nearfy/internal/discovery"
+	"nearfy/internal/model"
 )
 
 func (a *App) SelectAndSend(peerID string) error {
