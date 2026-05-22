@@ -9,16 +9,15 @@ interface Props {
   onCancel: (id: string) => void;
   onRespond: (id: string, accept: boolean) => void;
   isDragging: boolean;
-  dropHandlers: {
+  dragHandlers: {
     onDragEnter: (e: React.DragEvent) => void;
     onDragOver: (e: React.DragEvent) => void;
     onDragLeave: (e: React.DragEvent) => void;
-    onDrop: (e: React.DragEvent) => void;
   };
 }
 
 export const TransferPanel: React.FC<Props> = ({
-  tasks, peerId, deviceName, onCancel, onRespond, isDragging, dropHandlers,
+  tasks, peerId, deviceName, onCancel, onRespond, isDragging, dragHandlers,
 }) => {
   const filtered = peerId ? tasks.filter(t => t.peer_id === peerId) : tasks;
   const active = filtered.filter(t => taskStateName(t.state) === 'transferring');
@@ -26,7 +25,11 @@ export const TransferPanel: React.FC<Props> = ({
   const done = filtered.filter(t => ['completed', 'failed', 'cancelled'].includes(taskStateName(t.state)));
 
   return (
-    <div className="transfer-panel" {...dropHandlers}>
+    <div
+      className="transfer-panel"
+      data-file-drop-target
+      {...dragHandlers}
+    >
       {active.length > 0 && (
         <div className="section">
           <div className="section-title">传输中 ({active.length})</div>

@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/wailsapp/wails/v3/pkg/application"
+	"github.com/wailsapp/wails/v3/pkg/events"
 )
 
 //go:embed all:frontend/dist
@@ -25,11 +26,19 @@ func main() {
 		},
 	})
 
-	app.Window.NewWithOptions(application.WebviewWindowOptions{
+	win := app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:           "LAN File Share",
 		Width:           1024,
 		Height:          680,
 		DevToolsEnabled: true,
+		EnableFileDrop:  true,
+	})
+
+	win.OnWindowEvent(events.Common.WindowFilesDropped, func(event *application.WindowEvent) {
+		files := event.Context().DroppedFiles()
+		application.Get().Event.Emit("files-dropped", map[string]any{
+			"files": files,
+		})
 	})
 
 	if err := app.Run(); err != nil {

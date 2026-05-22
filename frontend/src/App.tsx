@@ -19,7 +19,7 @@ function App() {
     await SendPaths(selectedPeerId, paths);
   };
 
-  const { isDragging, handlers: dropHandlers } = useDragDrop(handleDrop, !!selectedPeerId);
+  const { isDragging, handlers: dragHandlers } = useDragDrop(handleDrop);
 
   return (
     <div className="app">
@@ -41,7 +41,7 @@ function App() {
           onCancel={cancelTask}
           onRespond={respondReceive}
           isDragging={isDragging}
-          dropHandlers={dropHandlers}
+          dragHandlers={dragHandlers}
         />
       </div>
     </div>

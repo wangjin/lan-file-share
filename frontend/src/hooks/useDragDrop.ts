@@ -1,51 +1,37 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Events } from '@wailsio/runtime';
 
-export function useDragDrop(onDrop: (paths: string[]) => void, enabled: boolean) {
+export function useDragDrop(onDrop: (paths: string[]) => void) {
   const [isDragging, setIsDragging] = useState(false);
-  const dragCounter = useRef(0);
+
+  useEffect(() => {
+    const off = Events.On('files-dropped', (ev: any) => {
+      setIsDragging(false);
+      const files: string[] = ev.data?.files || [];
+      if (files.length > 0) {
+        onDrop(files);
+      }
+    });
+    return () => { off(); };
+  }, [onDrop]);
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    if (!e.dataTransfer.types.includes('Files')) return;
-    dragCounter.current++;
-    setIsDragging(true);
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDragging(true);
+    }
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
   }, []);
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current--;
-    if (dragCounter.current === 0) {
-      setIsDragging(false);
-    }
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current = 0;
+    const related = e.relatedTarget as Node | null;
+    if (related && e.currentTarget.contains(related)) return;
     setIsDragging(false);
-
-    if (!enabled) return;
-
-    const paths: string[] = [];
-    const files = e.dataTransfer.files;
-    for (let i = 0; i < files.length; i++) {
-      const path = (files[i] as any).path as string | undefined;
-      if (path) {
-        paths.push(path);
-      }
-    }
-    if (paths.length > 0) {
-      onDrop(paths);
-    }
-  }, [enabled, onDrop]);
+  }, []);
 
   return {
     isDragging,
@@ -53,7 +39,6 @@ export function useDragDrop(onDrop: (paths: string[]) => void, enabled: boolean)
       onDragEnter: handleDragEnter,
       onDragOver: handleDragOver,
       onDragLeave: handleDragLeave,
-      onDrop: handleDrop,
     },
   };
 }
