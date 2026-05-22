@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@wailsio/runtime": "^3.0.0-alpha.79",
+    "marked": "^18.0.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^10.1.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.17",

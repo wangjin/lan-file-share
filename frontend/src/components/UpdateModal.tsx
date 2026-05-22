@@ -1,5 +1,5 @@
 import React from 'react';
-import Markdown from 'react-markdown';
+import { marked } from 'marked';
 import { UpdateInfo, DownloadProgress, UpdateStatus } from '../hooks/useUpdate';
 
 interface Props {
@@ -44,9 +44,10 @@ export const UpdateModal: React.FC<Props> = ({
         </div>
 
         {info.body && (
-          <div className="update-modal-body">
-            <Markdown>{info.body}</Markdown>
-          </div>
+          <div
+            className="update-modal-body"
+            dangerouslySetInnerHTML={{ __html: marked(info.body) as string }}
+          />
         )}
 
         {status === 'downloading' && progress && (
