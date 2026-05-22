@@ -143,12 +143,16 @@ func (s *Service) StartDownload() error {
 	s.mu.Unlock()
 
 	if release == nil {
-		return fmt.Errorf("no release info available")
+		err := fmt.Errorf("no release info available")
+		s.emitEvent("update:error", map[string]any{"error": err.Error()})
+		return err
 	}
 
 	asset, ok := release.FindAsset(runtime.GOOS)
 	if !ok {
-		return fmt.Errorf("no asset found for platform %s", runtime.GOOS)
+		err := fmt.Errorf("no asset found for platform %s", runtime.GOOS)
+		s.emitEvent("update:error", map[string]any{"error": err.Error()})
+		return err
 	}
 
 	ctx, cancel := context.WithCancel(s.ctx)

@@ -35,7 +35,11 @@ function App() {
   }, []);
 
   const handleStartDownload = useCallback(async () => {
-    await StartDownload();
+    try {
+      await StartDownload();
+    } catch (e) {
+      console.error('StartDownload failed:', e);
+    }
   }, []);
 
   const handleCancel = useCallback(async () => {

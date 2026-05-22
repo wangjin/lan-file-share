@@ -100,7 +100,7 @@ tasks:
     desc: Build Windows amd64 binary
     deps: [frontend:build]
     cmds:
-      - GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-windows-amd64.exe .
+      - GOOS=windows GOARCH=amd64 go build -ldflags "-H windowsgui -X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-windows-amd64.exe .
     sources:
       - "**/*.go"
       - go.mod
