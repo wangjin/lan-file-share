@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDevices } from './hooks/useDevices';
 import { useTransfers } from './hooks/useTransfers';
 import { useDragDrop } from './hooks/useDragDrop';
