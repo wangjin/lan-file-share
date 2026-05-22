@@ -24,9 +24,7 @@ jobs:
         run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
 
       - name: Install Taskfile
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
+        run: go install github.com/go-task/task/v3/cmd/task@latest
 
       - name: Package Windows
         run: task package:windows
@@ -53,9 +51,7 @@ jobs:
         run: go install github.com/wailsapp/wails/v3/cmd/wails3@latest
 
       - name: Install Taskfile
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
+        run: go install github.com/go-task/task/v3/cmd/task@latest
 
       - name: Generate macOS icon
         run: |
@@ -90,9 +86,7 @@ jobs:
           go-version: "1.26"
 
       - name: Install Taskfile
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
+        run: go install github.com/go-task/task/v3/cmd/task@latest
 
       - name: Run tests
         run: task test
