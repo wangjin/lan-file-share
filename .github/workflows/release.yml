@@ -66,12 +66,16 @@ jobs:
           sips -z 1024 1024 frontend/src/assets/images/logo.png --out /tmp/icon.iconset/icon_512x512@2x.png
           iconutil -c icns /tmp/icon.iconset -o build/darwin/icons.icns
       - run: task package:darwin
-      - name: Compress macOS .app
-        run: cd build/bin && tar -czf lan-file-share-macos.tar.gz lan-file-share.app
+      - name: Create macOS .dmg
+        run: |
+          mkdir -p /tmp/dmg-content
+          cp -R build/bin/lan-file-share.app /tmp/dmg-content/
+          ln -s /Applications /tmp/dmg-content/Applications
+          hdiutil create -volname "LAN File Share" -srcfolder /tmp/dmg-content -ov -format UDZO build/bin/lan-file-share-macos.dmg
       - uses: actions/upload-artifact@v4
         with:
           name: lan-file-share-macos
-          path: build/bin/lan-file-share-macos.tar.gz
+          path: build/bin/lan-file-share-macos.dmg
 
   release:
     needs: [build-windows, build-macos]
@@ -115,12 +119,13 @@ jobs:
             echo "## 📦 下载"
             echo "| 平台 | 文件 |"
             echo "|------|------|"
-            echo "| macOS | \`lan-file-share-macos.tar.gz\` |"
+            echo "| macOS | \`lan-file-share-macos.dmg\` |"
             echo "| Windows | \`lan-file-share-windows-amd64.exe\` |"
             echo ""
 
             echo "## 💻 macOS 使用说明"
-            echo "下载解压后，如果提示\"无法打开\"或\"已损坏\"，请在终端执行："
+            echo "双击打开 .dmg 文件，将 LAN File Share 拖入 Applications 文件夹即可。"
+            echo "如果提示\"无法打开\"或\"已损坏\"，请在终端执行："
             echo '```bash'
             echo "xattr -cr /path/to/lan-file-share.app"
             echo '```"
@@ -135,4 +140,4 @@ jobs:
           body: ${{ steps.notes.outputs.body }}
           files: |
             artifacts/lan-file-share-windows-amd64/*.exe
-            artifacts/lan-file-share-macos/*.tar.gz
+            artifacts/lan-file-share-macos/*.dmg

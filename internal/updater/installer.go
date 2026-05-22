@@ -34,30 +34,28 @@ func installMacOS(downloadPath string) error {
 		return err
 	}
 
-	tmpExtract := filepath.Join(os.TempDir(), "lan-file-share-update")
-	os.RemoveAll(tmpExtract)
-	if err := os.MkdirAll(tmpExtract, 0755); err != nil {
-		return fmt.Errorf("create temp dir: %w", err)
-	}
+	mountPoint := filepath.Join(os.TempDir(), "lan-file-share-dmg")
+	os.RemoveAll(mountPoint)
 
-	cmd := exec.Command("tar", "-xzf", downloadPath, "-C", tmpExtract)
+	cmd := exec.Command("hdiutil", "attach", downloadPath, "-mountpoint", mountPoint, "-nobrowse", "-quiet")
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("extract: %s: %w", string(out), err)
+		return fmt.Errorf("mount dmg: %s: %w", string(out), err)
 	}
+	defer exec.Command("hdiutil", "detach", mountPoint, "-quiet").Run()
 
-	entries, err := os.ReadDir(tmpExtract)
+	entries, err := os.ReadDir(mountPoint)
 	if err != nil {
-		return fmt.Errorf("read extracted dir: %w", err)
+		return fmt.Errorf("read mounted dmg: %w", err)
 	}
 	var newApp string
 	for _, e := range entries {
 		if strings.HasSuffix(e.Name(), ".app") && e.IsDir() {
-			newApp = filepath.Join(tmpExtract, e.Name())
+			newApp = filepath.Join(mountPoint, e.Name())
 			break
 		}
 	}
 	if newApp == "" {
-		return fmt.Errorf("no .app bundle found in archive")
+		return fmt.Errorf("no .app bundle found in dmg")
 	}
 
 	cmd = exec.Command("cp", "-R", newApp+"/", bundlePath+"/")

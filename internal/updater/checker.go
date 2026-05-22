@@ -97,7 +97,7 @@ func CheckForUpdate(currentVersion, repo string) (*ReleaseInfo, bool, error) {
 func PlatformAssetName() string {
 	switch runtime.GOOS {
 	case "darwin":
-		return "lan-file-share-macos.tar.gz"
+		return "lan-file-share-macos.dmg"
 	case "windows":
 		return "lan-file-share-windows-amd64.exe"
 	default:

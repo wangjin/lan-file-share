@@ -231,6 +231,17 @@ tasks:
     generates:
       - "{{.BUILD_DIR}}/{{.APP_NAME}}.app/Contents/MacOS/{{.APP_NAME}}"
 
+  package:darwin:dmg:
+    desc: Package macOS .dmg installer
+    deps: [package:darwin]
+    cmds:
+      - mkdir -p /tmp/{{.APP_NAME}}-dmg
+      - cp -R {{.BUILD_DIR}}/{{.APP_NAME}}.app /tmp/{{.APP_NAME}}-dmg/
+      - ln -sf /Applications /tmp/{{.APP_NAME}}-dmg/Applications
+      - hdiutil create -volname "LAN File Share" -srcfolder /tmp/{{.APP_NAME}}-dmg -ov -format UDZO {{.BUILD_DIR}}/{{.APP_NAME}}-macos.dmg
+    generates:
+      - "{{.BUILD_DIR}}/{{.APP_NAME}}-macos.dmg"
+
   package:windows:
     desc: Package Windows amd64 executable with icon embedding
     deps: [build:windows:amd64]
