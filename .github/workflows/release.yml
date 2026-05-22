@@ -78,22 +78,61 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: List artifacts
         run: find artifacts -type f | sort
+      - name: Generate release notes
+        id: notes
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | sed -n '2p')
+          if [ -z "$PREV_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="$PREV_TAG..HEAD"
+          fi
+
+          {
+            echo "body<<EOF"
+
+            FEATS=$(git log "$RANGE" --format="- %s" --grep="^feat" -i || true)
+            if [ -n "$FEATS" ]; then
+              echo "## ✨ 新功能"
+              echo "$FEATS"
+              echo ""
+            fi
+
+            FIXES=$(git log "$RANGE" --format="- %s" --grep="^fix" -i || true)
+            if [ -n "$FIXES" ]; then
+              echo "## 🐛 修复"
+              echo "$FIXES"
+              echo ""
+            fi
+
+            echo "## 📦 下载"
+            echo "| 平台 | 文件 |"
+            echo "|------|------|"
+            echo "| macOS | \`lan-file-share-macos.tar.gz\` |"
+            echo "| Windows | \`lan-file-share-windows-amd64.exe\` |"
+            echo ""
+
+            echo "## 💻 macOS 使用说明"
+            echo "下载解压后，如果提示\"无法打开\"或\"已损坏\"，请在终端执行："
+            echo '```bash'
+            echo "xattr -cr /path/to/lan-file-share.app"
+            echo '```"
+            echo "然后即可正常双击打开。"
+
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
-          body: |
-            ## macOS 使用说明
-            下载解压后，如果提示"无法打开"或"已损坏"，请在终端执行：
-            ```bash
-            xattr -cr /path/to/lan-file-share.app
-            ```
-            然后即可正常双击打开。
+          body: ${{ steps.notes.outputs.body }}
           files: |
             artifacts/lan-file-share-windows-amd64/*.exe
             artifacts/lan-file-share-macos/*.tar.gz
