@@ -150,10 +150,74 @@ tasks:
     cmds:
       - go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}} .
 
+  # ===== macOS icon generation =====
+  generate:darwin:icon:
+    desc: Generate macOS .icns icon from logo.png
+    internal: true
+    cmds:
+      - mkdir -p /tmp/lan-file-share-icon.iconset
+      - sips -z 16 16 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_16x16.png
+      - sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_16x16@2x.png
+      - sips -z 32 32 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_32x32.png
+      - sips -z 64 64 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_32x32@2x.png
+      - sips -z 128 128 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_128x128.png
+      - sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_128x128@2x.png
+      - sips -z 256 256 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_256x256.png
+      - sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_256x256@2x.png
+      - sips -z 512 512 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_512x512.png
+      - sips -z 1024 1024 frontend/src/assets/images/logo.png --out /tmp/lan-file-share-icon.iconset/icon_512x512@2x.png
+      - mkdir -p build/darwin
+      - iconutil -c icns /tmp/lan-file-share-icon.iconset -o build/darwin/icons.icns
+    sources:
+      - frontend/src/assets/images/logo.png
+    generates:
+      - build/darwin/icons.icns
+    status:
+      - test -f build/darwin/icons.icns
+
+  generate:darwin:plist:
+    desc: Generate macOS Info.plist
+    internal: true
+    cmds:
+      - mkdir -p build/darwin
+      - |
+        cat > build/darwin/Info.plist << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>CFBundleExecutable</key>
+          <string>lan-file-share</string>
+          <key>CFBundleIdentifier</key>
+          <string>com.ieemoo.lan-file-share</string>
+          <key>CFBundleName</key>
+          <string>LAN File Share</string>
+          <key>CFBundleDisplayName</key>
+          <string>LAN File Share</string>
+          <key>CFBundleVersion</key>
+          <string>{{.VERSION}}</string>
+          <key>CFBundleShortVersionString</key>
+          <string>{{.VERSION}}</string>
+          <key>CFBundleIconFile</key>
+          <string>icons</string>
+          <key>CFBundlePackageType</key>
+          <string>APPL</string>
+          <key>LSMinimumSystemVersion</key>
+          <string>11.0</string>
+          <key>NSHighResolutionCapable</key>
+          <true/>
+        </dict>
+        </plist>
+        EOF
+    generates:
+      - build/darwin/Info.plist
+    status:
+      - test -f build/darwin/Info.plist
+
   # ===== Package (platform-native bundles) =====
   package:darwin:
     desc: Package macOS .app bundle for current architecture
-    deps: [build:darwin]
+    deps: [build:darwin, generate:darwin:icon, generate:darwin:plist]
     cmds:
       - mkdir -p {{.BUILD_DIR}}/{{.APP_NAME}}.app/Contents/{MacOS,Resources}
       - cp build/darwin/icons.icns {{.BUILD_DIR}}/{{.APP_NAME}}.app/Contents/Resources
