@@ -4,6 +4,11 @@ on:
   push:
     tags:
       - “v*”
+  workflow_dispatch:
+    inputs:
+      version:
+        description: “Version tag (e.g. v1.0.4)”
+        required: true
 
 permissions:
   contents: write
@@ -141,6 +146,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
           body: ${{ steps.notes.outputs.body }}
           files: |
             artifacts/Nearfy-windows-amd64/*.exe
