@@ -6,6 +6,8 @@ import (
 
 	"github.com/wailsapp/wails/v3/pkg/application"
 	"github.com/wailsapp/wails/v3/pkg/events"
+
+	"lan-file-share/internal/updater"
 )
 
 var version = "dev"
@@ -23,6 +25,7 @@ func main() {
 		Icon:        iconData,
 		Services: []application.Service{
 			application.NewService(NewApp()),
+			application.NewService(updater.NewService(version, "wangjin/lan-file-share")),
 		},
 		Assets: application.AssetOptions{
 			Handler: application.BundledAssetFileServer(assets),

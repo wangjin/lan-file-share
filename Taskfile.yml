@@ -5,6 +5,8 @@ vars:
   FRONTEND_DIR: frontend
   BUILD_DIR: build/bin
   BINDINGS_DIR: frontend/bindings
+  VERSION:
+    sh: git describe --tags --always 2>/dev/null || echo "dev"
 
 env:
   CGO_ENABLED: 1
@@ -59,7 +61,7 @@ tasks:
     desc: Build macOS amd64 binary
     deps: [frontend:build]
     cmds:
-      - GOOS=darwin GOARCH=amd64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-darwin-amd64 .
+      - GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-darwin-amd64 .
     sources:
       - "**/*.go"
       - go.mod
@@ -72,7 +74,7 @@ tasks:
     desc: Build macOS arm64 binary (Apple Silicon)
     deps: [frontend:build]
     cmds:
-      - GOOS=darwin GOARCH=arm64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-darwin-arm64 .
+      - GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-darwin-arm64 .
     sources:
       - "**/*.go"
       - go.mod
@@ -85,7 +87,7 @@ tasks:
     desc: Build macOS binary for current architecture
     deps: [frontend:build]
     cmds:
-      - go build -o {{.BUILD_DIR}}/{{.APP_NAME}} .
+      - go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}} .
     sources:
       - "**/*.go"
       - go.mod
@@ -98,7 +100,7 @@ tasks:
     desc: Build Windows amd64 binary
     deps: [frontend:build]
     cmds:
-      - GOOS=windows GOARCH=amd64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-windows-amd64.exe .
+      - GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-windows-amd64.exe .
     sources:
       - "**/*.go"
       - go.mod
@@ -111,7 +113,7 @@ tasks:
     desc: Build Linux amd64 binary
     deps: [frontend:build]
     cmds:
-      - GOOS=linux GOARCH=amd64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-linux-amd64 .
+      - GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-linux-amd64 .
     sources:
       - "**/*.go"
       - go.mod
@@ -124,7 +126,7 @@ tasks:
     desc: Build Linux arm64 binary
     deps: [frontend:build]
     cmds:
-      - GOOS=linux GOARCH=arm64 go build -o {{.BUILD_DIR}}/{{.APP_NAME}}-linux-arm64 .
+      - GOOS=linux GOARCH=arm64 go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}}-linux-arm64 .
     sources:
       - "**/*.go"
       - go.mod
@@ -146,7 +148,7 @@ tasks:
     desc: Build binary for current platform
     deps: [frontend:build]
     cmds:
-      - go build -o {{.BUILD_DIR}}/{{.APP_NAME}} .
+      - go build -ldflags "-X main.version={{.VERSION}}" -o {{.BUILD_DIR}}/{{.APP_NAME}} .
 
   # ===== Package (platform-native bundles) =====
   package:darwin:
