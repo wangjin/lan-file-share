@@ -109,37 +109,37 @@ jobs:
             RANGE="$PREV_TAG..HEAD"
           fi
 
-          NL=$(printf '\n')
-          BL=$(printf '\n\n')
-
-          NOTES="## ✨ 新功能${BL}"
-          FEATS=$(git log "$RANGE" --format="- %s" --grep="^feat" -i || true)
-          if [ -n "$FEATS" ]; then
-            NOTES="${NOTES}${FEATS}${BL}"
-          fi
-
-          NOTES="${NOTES}## 🐛 修复${BL}"
-          FIXES=$(git log "$RANGE" --format="- %s" --grep="^fix" -i || true)
-          if [ -n "$FIXES" ]; then
-            NOTES="${NOTES}${FIXES}${BL}"
-          fi
-
-          NOTES="${NOTES}## 📦 下载${BL}"
-          NOTES="${NOTES}| 平台 | 文件 |${NL}"
-          NOTES="${NOTES}|------|------|${NL}"
-          NOTES="${NOTES}| macOS | \`Nearfy-macos.dmg\` |${NL}"
-          NOTES="${NOTES}| Windows | \`Nearfy-windows-amd64.exe\` |${BL}"
-          NOTES="${NOTES}## 💻 macOS 使用说明${BL}"
-          NOTES="${NOTES}双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。${NL}"
-          NOTES="${NOTES}如果提示"无法打开"或"已损坏"，请在终端执行：${BL}"
-          NOTES="${NOTES}\`\`\`bash${NL}"
-          NOTES="${NOTES}xattr -cr /path/to/Nearfy.app${NL}"
-          NOTES="${NOTES}\`\`\`${BL}"
-          NOTES="${NOTES}然后即可正常双击打开。${NL}"
+          {
+            echo "## ✨ 新功能"
+            echo ""
+            git log "$RANGE" --format="- %s" --grep="feat" -i 2>/dev/null || true
+            echo ""
+            echo "## 🐛 修复"
+            echo ""
+            git log "$RANGE" --format="- %s" --grep="fix" -i 2>/dev/null || true
+            echo ""
+            echo "## 📦 下载"
+            echo ""
+            echo "| 平台 | 文件 |"
+            echo "|------|------|"
+            echo "| macOS | \`Nearfy-macos.dmg\` |"
+            echo "| Windows | \`Nearfy-windows-amd64.exe\` |"
+            echo ""
+            echo "## 💻 macOS 使用说明"
+            echo ""
+            echo "双击打开 .dmg 文件，将 Nearfy 拖入 Applications 文件夹即可。"
+            echo "如果提示"无法打开"或"已损坏"，请在终端执行："
+            echo ""
+            echo "\`\`\`bash"
+            echo "xattr -cr /path/to/Nearfy.app"
+            echo "\`\`\`"
+            echo ""
+            echo "然后即可正常双击打开。"
+          } > /tmp/release-notes.md
 
           {
             echo "body<<RELEASEEOF"
-            echo "$NOTES"
+            cat /tmp/release-notes.md
             echo "RELEASEEOF"
           } >> "$GITHUB_OUTPUT"
 
